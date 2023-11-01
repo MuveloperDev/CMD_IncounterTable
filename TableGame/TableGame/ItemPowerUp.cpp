@@ -11,6 +11,9 @@ ItemPowerUp::~ItemPowerUp()
 
 void ItemPowerUp::Use()
 {
+	if (0 >= _count)
+		return;
+
 	GameManager::GetInstance().GetPlayer().SetAttackDamage(increasePower);
 	_count--;
 }

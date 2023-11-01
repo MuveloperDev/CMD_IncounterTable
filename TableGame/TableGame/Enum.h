@@ -38,7 +38,7 @@ enum class MapSector
 	Sector3,
 	Sector4
 };
-enum class PlayerInputBattleMode
+enum class PlayerInputSelectMode
 {
 	None,
 	Up,
@@ -75,6 +75,15 @@ enum class ItemType
 	PowerUp,
 	Exit,
 	Max,
+};
+
+enum class TextColors
+{
+	None,
+	Red,
+	Green,
+	Blue,
+	Intensity
 };
 class Enum
 {

@@ -32,19 +32,27 @@ void TableBoard::Render()
 		{
 			if (y == GameManager::GetInstance().GetPlayer().GetPosY() && x == GameManager::GetInstance().GetPlayer().GetPosX())
 			{
+				Utility::GetInstance().ChangeTextColor(TextColors::Green, true);
 				GameManager::GetInstance().GetPlayer().Render();
+				Utility::GetInstance().ResetTextColor();
 			}
 			else if (true == GameManager::GetInstance().GetMonsterMapManager().IsMonstetTile(x, y))
 			{
+				Utility::GetInstance().ChangeTextColor(TextColors::Red, false);
 				GameManager::GetInstance().GetMonsterMapManager().Render();
+				Utility::GetInstance().ResetTextColor();
 			}
 			else if (true == GameManager::GetInstance().GetShopManager().IsShop(x, y))
 			{
+				Utility::GetInstance().ChangeTextColor(TextColors::Green, true);
 				std::wcout << GameManager::GetInstance().GetShopManager().GetShape();
+				Utility::GetInstance().ResetTextColor();
 			}
 			else if (y == GameManager::GetInstance().GetEscapeTile().GetPosY() && x == GameManager::GetInstance().GetEscapeTile().GetPosX())
 			{
+				Utility::GetInstance().ChangeTextColor(TextColors::Green, true);
 				GameManager::GetInstance().GetEscapeTile().Render();
+				Utility::GetInstance().ResetTextColor();
 			}
 			else std::wcout << _tableShape;
 		}

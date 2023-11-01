@@ -1,8 +1,36 @@
 #include "InventoryManager.h"
 
 InventoryManager::InventoryManager() : 
-	_PLAYER_INPUT(PlayerInputBattleMode::None), _CURRENT_CHOICE_ITEM(0),
-	_pointShape("¢¹")
+	_PLAYER_INPUT(PlayerInputSelectMode::None), _CURRENT_CHOICE_ITEM(0),
+	_pointShape("¢¹"), _CURRENT_TEXT_COLOR(TextColors::None),
+	_hConsole(GetStdHandle(STD_OUTPUT_HANDLE)),
+	_inventoryShape(R"(
+_________              _______    _         _________   _______    _______            
+\__   __/  |\     /|  (  ____ \  ( (    /|  \__   __/  (  ___  )  (  ____ )  |\     /|
+   ) (     | )   ( |  | (    \/  |  \  ( |     ) (     | (   ) |  | (    )|  ( \   / )
+   | |     | |   | |  | (__      |   \ | |     | |     | |   | |  | (____)|   \ (_) / 
+   | |     ( (   ) )  |  __)     | (\ \) |     | |     | |   | |  |     __)    \   /  
+   | |      \ \_/ /   | (        | | \   |     | |     | |   | |  | (\ (        ) (   
+___) (___    \   /    | (____/\  | )  \  |     | |     | (___) |  | ) \ \__     | |   
+\_______/     \_/     (_______/  |/    )_)     )_(     (_______)  |/   \__/     \_/ 
+)"),
+	_inventorySimpleShape(R"(
+   _....._
+  ';-.--';'
+    }===={       _.---.._
+  .'      '.    ';-..--';
+ /::        \    `}===={
+|::          :   '      '.
+\::.        _.---_        \
+ '::_     _`---..-';       |
+     `````  }====={        /
+          .'       '.   _.'
+         /::         \ `
+        |::           |
+        \::.          /
+         '::_      _.'
+             ``````
+)")
 {
 
 }
@@ -29,22 +57,28 @@ void InventoryManager::Start()
 
 void InventoryManager::Update()
 {
+	if (TextColors::None != _CURRENT_TEXT_COLOR)
+	{
+		Sleep(1000);
+		SetConsoleTextAttribute(_hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+		_CURRENT_TEXT_COLOR = TextColors::None;
+	}
 	_PLAYER_INPUT = GameManager::GetInstance().GetPlayer().GetCurrentInputBattleMode();
 	switch (_PLAYER_INPUT)
 	{
-	case PlayerInputBattleMode::None:
+	case PlayerInputSelectMode::None:
 		break;
-	case PlayerInputBattleMode::Up:
+	case PlayerInputSelectMode::Up:
 		_CURRENT_CHOICE_ITEM--;
 		if (static_cast<int>(ItemType::None) >=_CURRENT_CHOICE_ITEM)
 			_CURRENT_CHOICE_ITEM++;
 		break;
-	case PlayerInputBattleMode::Down:
+	case PlayerInputSelectMode::Down:
 		_CURRENT_CHOICE_ITEM++;
 		if (static_cast<int>(ItemType::Max) <= _CURRENT_CHOICE_ITEM)
 			_CURRENT_CHOICE_ITEM--;
 		break;
-	case PlayerInputBattleMode::Enter:
+	case PlayerInputSelectMode::Enter:
 		ChoiceProcess();
 		break;
 	default:
@@ -56,11 +90,14 @@ void InventoryManager::Render()
 {
 	Utility::GetInstance().PrintTopLine();
 	GameManager::GetInstance().GetPlayer().PrintPlayerStatus(false);
-	PrintItemList();
 	Utility::GetInstance().PrintVerticalLine(20);
-	Utility::GetInstance().SetCursorPosition(0, 27);
+	Utility::GetInstance().SetCursorPosition(22, 27);
 	std::cout << "  USE - ENTER" << std::endl;
 	Utility::GetInstance().PrintBottomLine();
+	PrintItemList();
+	Utility::GetInstance().ChangeTextColor(TextColors::Intensity, true);
+	Utility::GetInstance().PrintShape(29, 16, _inventoryShape);
+	Utility::GetInstance().ResetTextColor();
 }
 
 void InventoryManager::SimpleUI()
@@ -89,6 +126,15 @@ void InventoryManager::SimpleUI()
 			break;
 		}
 	}
+
+	Utility::GetInstance().PrintShape(91,12, _inventorySimpleShape);
+}
+
+ItemBase* InventoryManager::GetItem(ItemType InType)
+{
+	if (_itemList.find(InType) != _itemList.end())
+		return _itemList[InType];
+	return nullptr;
 }
 
 void InventoryManager::Initialize()
@@ -125,11 +171,11 @@ void InventoryManager::Initialize()
 
 void InventoryManager::PrintItemList()
 {
-	Utility::GetInstance().SetCursorPosition(43,1);
+	Utility::GetInstance().SetCursorPosition(60,1);
 	std::cout << "[ I N V E N T O R Y ]" << std::endl;
 	for (__int32 i = 0; i < static_cast<int>(ItemType::Max); i++)
 	{
-		Utility::GetInstance().SetCursorPosition(43, 2+i);
+		Utility::GetInstance().SetCursorPosition(60, 2+i);
 		ItemType key = static_cast<ItemType>(i);
 		ItemBase* base = _itemList[key];
 		switch (key)
@@ -142,7 +188,11 @@ void InventoryManager::PrintItemList()
 				std::cout <<"  HP Potion - [ " << base->GetCount() << " ]" << std::endl;
 				break;
 			}
+			if(PlayerInputSelectMode::Enter != _PLAYER_INPUT)
+				Utility::GetInstance().ChangeTextColor(TextColors::Green, false);
 			std::cout << _pointShape <<"HP Potion - [ " << base->GetCount() << " ]" << std::endl;
+			if (PlayerInputSelectMode::Enter != _PLAYER_INPUT)
+				Utility::GetInstance().ResetTextColor();
 			break;
 		case ItemType::PowerUp:
 			if (key != static_cast<ItemType>(_CURRENT_CHOICE_ITEM))
@@ -150,16 +200,24 @@ void InventoryManager::PrintItemList()
 				std::cout << "  Power Up - [ " << base->GetCount() << " ]" << std::endl;
 				break;
 			}
+			if (PlayerInputSelectMode::Enter != _PLAYER_INPUT)
+				Utility::GetInstance().ChangeTextColor(TextColors::Green, false);
 			std::cout << _pointShape << "Power Up - [ " << base->GetCount() << " ]" << std::endl;
+			if (PlayerInputSelectMode::Enter != _PLAYER_INPUT)
+				Utility::GetInstance().ResetTextColor();
 			break;
 		case ItemType::Exit:
-			Utility::GetInstance().SetCursorPosition(0, 26);
+			Utility::GetInstance().SetCursorPosition(22, 26);
 			if (key != static_cast<ItemType>(_CURRENT_CHOICE_ITEM))
 			{
 				std::cout << "  EXIT" << std::endl;
 				break;
 			}
+			if (PlayerInputSelectMode::Enter != _PLAYER_INPUT)
+				Utility::GetInstance().ChangeTextColor(TextColors::Green, false);
 			std::cout << _pointShape << "EXIT" << std::endl;
+			if (PlayerInputSelectMode::Enter != _PLAYER_INPUT)
+				Utility::GetInstance().ResetTextColor();
 			break;
 		case ItemType::Max:
 			break;
@@ -179,12 +237,17 @@ void InventoryManager::ChoiceProcess()
 	case ItemType::HPPotion:
 	{
 		ItemBase* base = _itemList[type];
+		SetConsoleTextAttribute(_hConsole, FOREGROUND_GREEN);
+		_CURRENT_TEXT_COLOR = TextColors::Green;
 		base->Use();
 		break;
 	}
 	case ItemType::PowerUp:
 	{
 		ItemBase* base = _itemList[type];
+
+		SetConsoleTextAttribute(_hConsole, FOREGROUND_BLUE);
+		_CURRENT_TEXT_COLOR = TextColors::Blue;
 		base->Use();
 		break;
 	}

@@ -28,10 +28,11 @@ private:
 	bool _isLackOfMoney;
 	bool _isBuy;
 	bool _isExit;
-	PlayerInputBattleMode _PLAYER_INPUT;
+	PlayerInputSelectMode _PLAYER_INPUT;
 	std::map<ItemType, ItemBase*> _itemList;
 	std::string _pointShape;
 	std::string _shopMasterShape;
+	std::string _tableShape;
 	
 private:
 	void PrintComment(bool& InFlag, std::string InComment);

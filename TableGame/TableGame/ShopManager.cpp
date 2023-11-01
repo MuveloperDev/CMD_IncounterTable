@@ -45,7 +45,7 @@ ShopManager::ShopManager(__int32 InTableSizeX, __int32 InTableSizeY, __int32 InD
 	_tableSizeX(InTableSizeX),
 	_tableSizeY(InTableSizeY),
 	_difficult(InDifficult),
-	_shape(L'¢Â'),
+	_shape(L'¢Ì'),
 	_currentTargetShop(nullptr)
 {
 }

@@ -1,11 +1,11 @@
 #pragma once
 #include "SceneBase.h"
 
-class TitleScene : public SceneBase
+class EscapeScene : public SceneBase
 {
 public:
-	TitleScene();
-	~TitleScene();
+	EscapeScene();
+	~EscapeScene();
 	virtual void Run() override;
 protected:
 	virtual void Initialize() override;
@@ -15,10 +15,6 @@ protected:
 	virtual bool SelectProcess() override;
 private:
 	HANDLE hStdout;
-	CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
-	SMALL_RECT srWindowRect;
-	COORD coordScreen;
-	std::string _startBtnText;
+	std::string _restartBtnText;
 	std::string _exitBtnText;
 };
-

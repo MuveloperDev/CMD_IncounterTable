@@ -1,7 +1,7 @@
 #include "ItemBase.h"
 
 ItemBase::ItemBase(ItemType InType, __int32 InPrice):
-	_type(InType), _count(0), _price(InPrice)
+	_type(InType), _count(2), _price(InPrice)
 {
 }
 

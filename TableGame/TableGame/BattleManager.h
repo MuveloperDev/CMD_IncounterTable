@@ -19,13 +19,14 @@ public:
 private:
 
 	bool _isRun;
+	bool _isSelectInventory;
 	std::string _pointShape;
 	MonsterTile* _targetTile;
 	MonsterBase* _targetMonster;
 	BattlePage _CURRENT_BATTLEPAGE;
 	PlayerChoiceListBattleMode _CURRENT_CHOICE_LIST;
 	std::default_random_engine generator;
-	PlayerInputBattleMode _PLAYER_INPUT;
+	PlayerInputSelectMode _PLAYER_INPUT;
 	HANDLE _hConsole;
 
 private:

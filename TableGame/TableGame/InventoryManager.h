@@ -14,11 +14,16 @@ public:
 	void Update();
 	void Render();
 	void SimpleUI();
+	ItemBase* GetItem(ItemType InType);
 private:
 	__int32 _CURRENT_CHOICE_ITEM;
-	PlayerInputBattleMode _PLAYER_INPUT;
+	HANDLE _hConsole;
+	PlayerInputSelectMode _PLAYER_INPUT;
 	std::map<ItemType, ItemBase*> _itemList;
 	std::string _pointShape;
+	std::string _inventoryShape;
+	std::string _inventorySimpleShape;
+	TextColors _CURRENT_TEXT_COLOR;
 private:
 	void Initialize();
 	void PrintItemList();

@@ -42,6 +42,6 @@ void EscapeTile::Escape()
 	__int32 playerPosY = GameManager::GetInstance().GetPlayer().GetPosY();
 	if (playerPosX == _posX && playerPosY == _posY)
 	{
-		GameManager::GetInstance().ChangeScene(Scene::Title);
+		GameManager::GetInstance().ChangeScene(Scene::Escape);
 	}
 }

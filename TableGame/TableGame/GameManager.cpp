@@ -224,6 +224,11 @@ MonsterMapManager& GameManager::GetMonsterMapManager() const
 	return *_monsterMapManager;
 }
 
+InventoryManager& GameManager::GetInventoryManager() const
+{
+	return *_inventoryManager;
+}
+
 ShopManager& GameManager::GetShopManager() const
 {
 	return *_shopManager;

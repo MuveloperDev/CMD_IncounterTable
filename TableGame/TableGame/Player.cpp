@@ -6,7 +6,51 @@ Player::Player(__int32 InTableSizeX, __int32 InTableSizeY) :
 	isKeyDown(false),
 	_TABLE_SIZE_X(InTableSizeX), _TABLE_SIZE_Y(InTableSizeY),
 	_maxHp(100), _hp(_maxHp), _attackDamge(10), _gold(0),
-	_CURRENTINPUT(PlayerInputBattleMode::None)
+	_CURRENTINPUT(PlayerInputSelectMode::None),
+	_playerDefaultShape(R"(
+      _,.
+    ,` -.)
+   ( _/-\\-._
+  /,|`--._,-^|            ,
+  \_| |`-._/||          ,'|
+    |  `-, / |         /  /
+    |     || |        /  /
+     `r-._||/   __   /  /
+ __,-<_     )`-/  `./  /
+'  \   `---'   \   /  /
+    |           |./  /
+    /           //  /
+\_/' \         |/  /
+ |    |   _,^-'/  /
+ |    , ``  (\/  /_
+  \,.->._    \X-=/^
+  (  /   `-._//^`
+   `Y-.____(__}
+    |     {__)
+          ()
+)"),
+_playerShopShape(R"(
+        {}
+       .--.
+      /.--.\
+      |====|
+      |`::`|
+  .-;`\..../`;-.
+ /  |...::...|  \
+|   /'''::'''\   |
+;--'\   ::   /\--;
+<__>,>._::_.<,<__>
+|  |/   ^^   \|  |
+\::/|        |\::/
+|||\|        |/|||
+''' |___/\___| '''
+     \_ || _/
+     <_ >< _>
+     |  ||  |
+     |  ||  |
+    _\.:||:./_
+   /____/\____\
+)")
 {
 	std::cout << "_Player Init \n";
 }
@@ -72,10 +116,10 @@ void Player::Test()
 
 void Player::InitCurrentBattleInput()
 {
-	_CURRENTINPUT = PlayerInputBattleMode::None;
+	_CURRENTINPUT = PlayerInputSelectMode::None;
 }
 
-PlayerInputBattleMode Player::GetCurrentInputBattleMode()
+PlayerInputSelectMode Player::GetCurrentInputBattleMode()
 {
 	return _CURRENTINPUT;
 }
@@ -211,15 +255,15 @@ void Player::BattleInput()
 		{
 			if (isUp)
 			{
-				_CURRENTINPUT = PlayerInputBattleMode::Up;
+				_CURRENTINPUT = PlayerInputSelectMode::Up;
 			}
 			if (isDown)
 			{
-				_CURRENTINPUT = PlayerInputBattleMode::Down;
+				_CURRENTINPUT = PlayerInputSelectMode::Down;
 			}
 			if (isEnter)
 			{
-				_CURRENTINPUT = PlayerInputBattleMode::Enter;
+				_CURRENTINPUT = PlayerInputSelectMode::Enter;
 				//GameManager::GetInstance().ChangeGameMode(GameMode::TableMode, nullptr);
 				//GameManager::GetInstance().GetBattleManager().GetTargetTile().SetIsClear(true);
 			}
@@ -238,6 +282,8 @@ void Player::PrintPlayerStatus(bool InisFrame)
 		Utility::GetInstance().SetCursorPosition(1, 0);
 		std::cout << "================================" << std::endl;
 	}
+
+
 	Utility::GetInstance().SetCursorPosition(1, 1);
 	std::cout << "[ S T A T U S ]" << std::endl;
 	Utility::GetInstance().SetCursorPosition(1, 2);
@@ -251,4 +297,24 @@ void Player::PrintPlayerStatus(bool InisFrame)
 		Utility::GetInstance().SetCursorPosition(1, 5);
 		std::cout << "================================";
 	}
+	GameMode currentMode = GameManager::GetInstance().GetCurrentGameMode();
+	switch (currentMode)
+	{
+	case GameMode::None:
+		break;
+	case GameMode::TableMode:
+		Utility::GetInstance().PrintShape(1, 7, _playerDefaultShape);
+		break;
+	case GameMode::BattleMode:
+		Utility::GetInstance().PrintVerticalLine(22, 1, 4);
+		break;
+	case GameMode::InventoryMode:
+	case GameMode::ShopMode:
+		Utility::GetInstance().PrintShape(1, 5, _playerShopShape);
+		break;
+	}
+
+	
+
+
 }

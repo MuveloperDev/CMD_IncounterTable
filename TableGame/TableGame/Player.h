@@ -15,7 +15,7 @@ public:
 	const wchar_t GetShape() const;
 	void Test();
 	void InitCurrentBattleInput();
-	PlayerInputBattleMode GetCurrentInputBattleMode();
+	PlayerInputSelectMode GetCurrentInputBattleMode();
 	void PrintPlayerStatus(bool InisFrame);
 public:
 	__int32 GetHp() const;
@@ -50,6 +50,8 @@ private:
 	bool isKeyDown;
 	const __int32 _TABLE_SIZE_X;
 	const __int32 _TABLE_SIZE_Y;
-	PlayerInputBattleMode _CURRENTINPUT;
+	std::string _playerDefaultShape;
+	std::string _playerShopShape;
+	PlayerInputSelectMode _CURRENTINPUT;
 };
 

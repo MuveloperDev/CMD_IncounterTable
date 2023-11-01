@@ -31,6 +31,7 @@ public:
 	EscapeTile& GetEscapeTile() const;
 	BattleManager& GetBattleManager() const;
 	MonsterMapManager& GetMonsterMapManager() const;
+	InventoryManager& GetInventoryManager() const;
 	ShopManager & GetShopManager() const;
 	std::default_random_engine GetRandomGenerator();
 private:

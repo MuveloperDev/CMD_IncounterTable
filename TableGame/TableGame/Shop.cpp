@@ -3,12 +3,51 @@
 #include "Player.h"
 #include "ShopManager.h"
 #include "Utility.h"
+#include "ItemBase.h"
 
 
 Shop::Shop(__int32 InPosX, __int32 InPosY) :
-	_posX(InPosX), _posY(InPosY), _shopMasterShape(R"()"),
-	_PLAYER_INPUT(PlayerInputBattleMode::None), _CURRENT_CHOICE_ITEM(0),
-	_pointShape("▷"), _isLackOfMoney(false), _isExit(false), _isBuy(false)
+	_posX(InPosX), _posY(InPosY), _shopMasterShape(R"(
+    |`.             /
+    | \`.          / |
+    |  \ \.------./ '|
+    |  .'          / |
+    |  |             |
+    \  |  ___ ' __  /
+     \  \ `0 ) /0 //
+      `--\    v  /-
+         /\ -  /
+      .--. '---'_
+     /      ./ //-
+    (`-.    .-'/- \
+    /`- `--'    \__|
+   /  ,          )_|
+  /    Y        -  ( BP 
+)"),
+	_PLAYER_INPUT(PlayerInputSelectMode::None), _CURRENT_CHOICE_ITEM(0),
+	_pointShape("▷"), _isLackOfMoney(false), _isExit(false), _isBuy(false),
+	_tableShape(R"(
+                                               /\      /\
+                                               ||______||
+                                               || ^  ^ ||
+                                               \| |  | |/
+                                                |______|
+              __                                |  __  |
+             /  \       ________________________|_/  \_|__
+            / ^^ \     /=========================/ ^^ \===|
+           /  []  \   /=========================/  []  \==|
+          /________\ /=========================/________\=|
+       *  |        |/==========================|        |=|
+      *** | ^^  ^^ |---------------------------| ^^  ^^ |--
+     *****| []  [] |           _____           | []  [] | |
+    *******        |          /_____\          |      * | |
+   *********^^  ^^ |  ^^  ^^  |  |  |  ^^  ^^  |     ***| |
+  ***********]  [] |  []  []  |  |  |  []  []  | ===***** |
+ *************     |         @|__|__|@         |/ |*******|
+***************   ***********--=====--**********| *********
+***************___*********** |=====| **********|***********
+ *************     ********* /=======\ ******** | *********
+)")
 {
 }
 
@@ -40,19 +79,19 @@ void Shop::Update()
 	_PLAYER_INPUT = GameManager::GetInstance().GetPlayer().GetCurrentInputBattleMode();
 	switch (_PLAYER_INPUT)
 	{
-	case PlayerInputBattleMode::None:
+	case PlayerInputSelectMode::None:
 		break;
-	case PlayerInputBattleMode::Up:
+	case PlayerInputSelectMode::Up:
 		_CURRENT_CHOICE_ITEM--;
 		if (static_cast<int>(ItemType::None) >= _CURRENT_CHOICE_ITEM)
 			_CURRENT_CHOICE_ITEM++;
 		break;
-	case PlayerInputBattleMode::Down:
+	case PlayerInputSelectMode::Down:
 		_CURRENT_CHOICE_ITEM++;
 		if (static_cast<int>(ItemType::Max) <= _CURRENT_CHOICE_ITEM)
 			_CURRENT_CHOICE_ITEM--;
 		break;
-	case PlayerInputBattleMode::Enter:
+	case PlayerInputSelectMode::Enter:
 		ChoiceProcess();
 		break;
 	default:
@@ -74,7 +113,11 @@ void Shop::Render()
 	PrintItemList();
 	PrintLine(20);
 	PrintLine(85);
-	Utility::GetInstance().SetCursorPosition(0, 27);
+	Utility::GetInstance().ChangeTextColor(TextColors::Intensity, true);
+	Utility::GetInstance().PrintShape(24, 7, _tableShape);
+	Utility::GetInstance().ResetTextColor();
+	Utility::GetInstance().PrintShape(90, 8, _shopMasterShape);
+	Utility::GetInstance().SetCursorPosition(105, 27);
 	std::cout << "  USE - ENTER" << std::endl;
 	std::cout << "▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤" << std::endl;
 	PrintComment(_isLackOfMoney, "You low on gold......");
@@ -155,7 +198,9 @@ void Shop::PrintItemList()
 				std::cout << "  HP Potion - [ " << base->GetPrice() << " G ]" << std::endl;
 				break;
 			}
+			Utility::GetInstance().ChangeTextColor(TextColors::Green, false);
 			std::cout << _pointShape << "HP Potion - [ " << base->GetPrice() << " G ]" << std::endl;
+			Utility::GetInstance().ResetTextColor();
 			break;
 		case ItemType::PowerUp:
 			if (key != static_cast<ItemType>(_CURRENT_CHOICE_ITEM))
@@ -163,16 +208,20 @@ void Shop::PrintItemList()
 				std::cout << "  Power Up - [ " << base->GetPrice() << " G ]" << std::endl;
 				break;
 			}
+			Utility::GetInstance().ChangeTextColor(TextColors::Green, false);
 			std::cout << _pointShape << "Power Up - [ " << base->GetPrice() << " G ]" << std::endl;
+			Utility::GetInstance().ResetTextColor();
 			break;
 		case ItemType::Exit:
-			Utility::GetInstance().SetCursorPosition(0, 26);
+			Utility::GetInstance().SetCursorPosition(105, 26);
 			if (key != static_cast<ItemType>(_CURRENT_CHOICE_ITEM))
 			{
 				std::cout << "  EXIT" << std::endl;
 				break;
 			}
+			Utility::GetInstance().ChangeTextColor(TextColors::Green, false);
 			std::cout << _pointShape << "EXIT" << std::endl;
+			Utility::GetInstance().ResetTextColor();
 			break;
 		case ItemType::Max:
 			break;
@@ -198,7 +247,7 @@ void Shop::ChoiceProcess()
 			break;
 		}
 		GameManager::GetInstance().GetPlayer().SetGold(-base->GetPrice());
-		base->SetCount(1);
+		GameManager::GetInstance().GetInventoryManager().GetItem(ItemType::HPPotion)->SetCount(1);
 		_isBuy = true;
 		break;
 	}
@@ -211,7 +260,7 @@ void Shop::ChoiceProcess()
 			break;
 		}
 		GameManager::GetInstance().GetPlayer().SetGold(-base->GetPrice());
-		base->SetCount(1);
+		GameManager::GetInstance().GetInventoryManager().GetItem(ItemType::PowerUp)->SetCount(1);
 		_isBuy = true;
 		break;
 	}
@@ -240,16 +289,16 @@ __int32 Shop::GetPosY() const
 	return _posY;
 }
 
-void Shop::PrintComment(bool& InFlag, std::string InComment)
+void Shop::PrintComment(bool& InFlag,  std::string InComment)
 {
 	if (true == InFlag)
 	{
-		Utility::GetInstance().SetCursorPosition(90, 10);
-		std::cout << "=============================" << std::endl;
-		Utility::GetInstance().SetCursorPosition(90, 11);
+		Utility::GetInstance().SetCursorPosition(88, 4);
+		std::cout << "================================" << std::endl;
+		Utility::GetInstance().SetCursorPosition(90, 5);
 		std::cout << "\"" << InComment << "\"" << std::endl;
-		Utility::GetInstance().SetCursorPosition(90, 12);
-		std::cout << "=============================" << std::endl;
+		Utility::GetInstance().SetCursorPosition(88, 6);
+		std::cout << "================================" << std::endl;
 		Sleep(1000);
 		Utility::GetInstance().ClearCmd();
 	}

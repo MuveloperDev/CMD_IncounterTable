@@ -1,6 +1,10 @@
 #pragma once
 #include "Enum.h"
-
+#include <iostream>
+#include <windows.h>
+#include <winnt.h>
+#include <stdio.h>
+#include <cstdlib> // for system
 class ItemBase
 {
 public:

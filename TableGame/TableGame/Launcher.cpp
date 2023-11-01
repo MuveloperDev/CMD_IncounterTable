@@ -1,6 +1,8 @@
 #include "Launcher.h"
 #include "TitleScene.h"
 #include "TableGame.h"
+#include "EscapeScene.h"
+#include "DeadScene.h"
 
 Launcher::Launcher() :
 	_startTickCount(0), 
@@ -47,6 +49,8 @@ int main()
 {
 	Launcher* launcher = new Launcher();
 	TitleScene* titleScene = new TitleScene();
+	EscapeScene* escapeScene = new EscapeScene();
+	DeadScene* deadScene = new DeadScene();
 	while (true)
 	{
 		Utility::GetInstance().ClearCmd();
@@ -63,8 +67,10 @@ int main()
 			launcher-> ProcessGame();
 			break;
 		case Scene::Lose:
+			deadScene->Run();
 			break;
 		case Scene::Escape:
+			escapeScene->Run();
 			break;
 		default:
 			break;
@@ -72,4 +78,6 @@ int main()
 	}
 	delete titleScene;
 	delete launcher;
+	delete escapeScene;
+	delete deadScene;
 }

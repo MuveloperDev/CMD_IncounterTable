@@ -141,59 +141,67 @@ void MonsterMapManager::GenerateRandomXPos(MapSector InSector, __int32 InLevel)
 	{
 		std::uniform_int_distribution<int> distribution(sector1._startCoordinateX, sector1._endCoordinateX);
 		__int32 random_number = distribution(generator);
-		if (false == hasDuplicatedSectorPos(sector1._generatePosX, TileCooridnate(random_number, InLevel)))
-		{
-			sector1._generatePosX.push_back(TileCooridnate(random_number, InLevel));
-		}
-		else
+		if (true == hasDuplicatedSectorPos(sector1._generatePosX, TileCooridnate(random_number, InLevel)))
 		{
 			GenerateRandomXPos(MapSector::Sector1, InLevel);
+			break;
 		}
+
+		if (0 == InLevel && 0 == random_number)
+		{
+			GenerateRandomXPos(MapSector::Sector1, InLevel);
+			break;
+		}
+
+		sector1._generatePosX.push_back(TileCooridnate(random_number, InLevel));
 		break;
 	}
 	case MapSector::Sector2:
 	{
 		std::uniform_int_distribution<int> distribution(sector2._startCoordinateX, sector2._endCoordinateX);
 		__int32 random_number = distribution(generator);
-		if (false == hasDuplicatedSectorPos(sector2._generatePosX, TileCooridnate(random_number, InLevel)))
-		{
-			sector2._generatePosX.push_back(TileCooridnate(random_number, InLevel));
-		}
-		else
+		if (true == hasDuplicatedSectorPos(sector2._generatePosX, TileCooridnate(random_number, InLevel)))
 		{
 			GenerateRandomXPos(MapSector::Sector2, InLevel);
+			break;
 		}
+		sector2._generatePosX.push_back(TileCooridnate(random_number, InLevel));
 		break;
 	}
 	case MapSector::Sector3:
 	{
 		std::uniform_int_distribution<int> distribution(sector3._startCoordinateX, sector3._endCoordinateX);
 		__int32 random_number = distribution(generator);
-		if (false == hasDuplicatedSectorPos(sector3._generatePosX, TileCooridnate(random_number, InLevel)))
-		{
-			sector3._generatePosX.push_back(TileCooridnate(random_number, InLevel));
-		}
-		else
+		if (true == hasDuplicatedSectorPos(sector3._generatePosX, TileCooridnate(random_number, InLevel)))
 		{
 			GenerateRandomXPos(MapSector::Sector3, InLevel);
+			break;
 		}
+		sector3._generatePosX.push_back(TileCooridnate(random_number, InLevel));
 		break;
 	}
 	case MapSector::Sector4:
 	{
 		std::uniform_int_distribution<int> distribution(sector4._startCoordinateX, sector4._endCoordinateX);
 		__int32 random_number = distribution(generator);
-		if (false == hasDuplicatedSectorPos(sector4._generatePosX, TileCooridnate(random_number, InLevel)))
-		{
-			sector4._generatePosX.push_back(TileCooridnate(random_number, InLevel));
-		}
-		else
+
+		if (true == hasDuplicatedSectorPos(sector4._generatePosX, TileCooridnate(random_number, InLevel)))
 		{
 			GenerateRandomXPos(MapSector::Sector4, InLevel);
+			break;
 		}
+
+		if (_tableSizeY / 2 - 1 == InLevel && _tableSizeX - 1 == random_number)
+		{
+			GenerateRandomXPos(MapSector::Sector4, InLevel);
+			break;
+		}
+
+		sector4._generatePosX.push_back(TileCooridnate(random_number, InLevel));
 		break;
 	}
 	}
+	
 }
 
 void MonsterMapManager::InitializeRandomMapPos()
@@ -228,6 +236,10 @@ void MonsterMapManager::InitializeRandomMapPos()
 			case MapSector::Sector1:
 				if (sector1.generatingNum < sector1._maxGeneratingNum)
 				{
+					if (sector1._generatePosX.size() <= 0)
+					{
+						std::cout << "sssss";
+					}
 					TileCooridnate sector1Last = sector1._generatePosX.back();
 					sector1._generatePosX.pop_back();
 					_monsterTileInfo.insert({ TileCooridnate{sector1Last._posX, y},new MonsterTile(sector1Last._posX, y, GenerateRandomMonsterType()) });
@@ -255,6 +267,10 @@ void MonsterMapManager::InitializeRandomMapPos()
 			case MapSector::Sector4:
 				if (sector4.generatingNum < sector4._maxGeneratingNum)
 				{
+					if (sector4._generatePosX.size() <= 0)
+					{
+						std::cout << "sssss";
+					}
 					TileCooridnate sector4Last = sector4._generatePosX.back();
 					sector4._generatePosX.pop_back();
 					_monsterTileInfo.insert({ TileCooridnate{sector4Last._posX, y},new MonsterTile(sector4Last._posX, y, GenerateRandomMonsterType()) });
