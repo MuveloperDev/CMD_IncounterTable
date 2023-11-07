@@ -24,6 +24,7 @@ void SceneBase::Initialize()
 	_buttons.clear();
 	_CURRENTINPUT = PlayerInputSelectMode::None;
 	_CURRENT_BTN_IDX = 0;
+	_CURRENT_SCENE = GameManager::GetInstance().GetCurrentScene();
 }
 
 void SceneBase::Update()

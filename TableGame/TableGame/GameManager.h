@@ -1,6 +1,8 @@
 #pragma once
 #include "TableGame.h"
-
+#include <thread>
+#include <future>
+#include "UnReDoManager.h"
 class Player;
 class TableBoard;
 class EscapeTile;
@@ -9,6 +11,9 @@ class BattleManager;
 class MonsterTile;
 class InventoryManager;
 class ShopManager;
+class UnReDoManager;
+class OptionManager;
+class SaveLoadManager;
 class GameManager
 {
 
@@ -22,6 +27,10 @@ public:
 	//void AfterRender
 	void ChangeScene(Scene InScene);
 	void ChangeGameMode(GameMode InGameMode, MonsterTile* _targetTile);
+	void PuaseMusic();
+	void StartMusic();
+	void SetDifficult(Difficult InDifficult);
+	bool IsPuaseMusic() const;
 	__int32 GetTableSizeX() const;
 	__int32 GetTableSizeY() const;
 	GameMode GetCurrentGameMode() const;
@@ -33,7 +42,11 @@ public:
 	MonsterMapManager& GetMonsterMapManager() const;
 	InventoryManager& GetInventoryManager() const;
 	ShopManager & GetShopManager() const;
+	UnReDoManager & GetUnReDoManager() const;
+	OptionManager & GetOptionManager() const;
+	SaveLoadManager& GetSaveLoadManager() const;
 	std::default_random_engine GetRandomGenerator();
+	Difficult GetDifficult();
 private:
 	GameManager();
 	~GameManager();
@@ -49,6 +62,7 @@ private:
 
 	const __int32 _TABLE_SIZE_X;
 	const __int32 _TABLE_SIZE_Y;
+	bool _isPuaseMusic;
 	Difficult _difficult;
 	Player* _player;
 	TableBoard* _tableBoard;
@@ -57,10 +71,17 @@ private:
 	BattleManager* _battleManager;
 	InventoryManager* _inventoryManager;
 	ShopManager* _shopManager;
+	UnReDoManager* _unReDoManager;
+	OptionManager* _optionManager;
+	SaveLoadManager* _saveLoadManager;
 	GameMode _CURRENT_GAME_MODE;
 	GameMode _PREV_GAME_MODE;
 	Scene _CURRENT_SCENE;
 	std::default_random_engine generator;
+	std::map<GameMode, std::vector<int>> freqsMap;
+	std::future<void> asyncMusic;
+	std::mutex mtx;
 	void PrintCurrentMode();
+	void Music();
 };
 

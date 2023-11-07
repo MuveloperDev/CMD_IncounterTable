@@ -1,26 +1,12 @@
 #pragma once
 #include "TableGame.h"
 #include "MonsterTile.h"
-class MonsterTile;
 
+class MonsterTile;
 class MonsterMapManager
 {
 public:
 
-	struct TileCooridnate
-	{
-		__int32 _posX;
-		__int32 _posY;
-
-		bool operator<(const TileCooridnate& other) const {
-			if (_posX == other._posX) {
-				return _posY < other._posY;
-			}
-			else {
-				return _posX < other._posX;
-			}
-		}
-	};
 	struct Sector
 	{
 		__int32 _startCoordinateX;
@@ -32,7 +18,7 @@ public:
 		__int32 generatingNum;
 		__int32 generatingLevelNum;
 		__int32 _maxLevelGeneratingNum;
-		std::vector<TileCooridnate> _generatePosX;
+		std::vector<TileCoordinate> _generatePosX;
 	};
 	MonsterMapManager(__int32 InTableSizeX, __int32 InTableSizeY, __int32 InDifficult);
 	~MonsterMapManager();
@@ -43,8 +29,11 @@ public:
 	void Update();
 	void Render();
 	void Initialize();
+	SaveMonsterTileInfo GetUnDoData();
+	void SetUndoData(SaveMonsterTileInfo InData);
+	void LoadData(SaveMonsterTileInfo InData);
 private:
-	std::map<TileCooridnate, MonsterTile*> _monsterTileInfo;
+	std::map<TileCoordinate, MonsterTile*> _monsterTileInfo;
 	__int32 _tableSizeX;
 	__int32 _tableSizeY;
 	__int32 _difficult;
@@ -57,7 +46,7 @@ private:
 	MapSector SetTargetSector(const __int32 x, const __int32 y);
 	void GenerateRandomXPos(MapSector InSector, __int32 InLevel);
 	void InitializeRandomMapPos();
-	bool hasDuplicatedSectorPos(std::vector<TileCooridnate>& vec, TileCooridnate value);
+	bool hasDuplicatedSectorPos(std::vector<TileCoordinate>& vec, TileCoordinate value);
 	void ReverseSectorPos();
 	MonsterType GenerateRandomMonsterType();
 	std::default_random_engine generator;

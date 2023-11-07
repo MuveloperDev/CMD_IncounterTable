@@ -63,20 +63,26 @@ void InventoryManager::Update()
 		SetConsoleTextAttribute(_hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 		_CURRENT_TEXT_COLOR = TextColors::None;
 	}
-	_PLAYER_INPUT = GameManager::GetInstance().GetPlayer().GetCurrentInputBattleMode();
+	_PLAYER_INPUT = GameManager::GetInstance().GetPlayer().GetCurrentInputSelectMode();
 	switch (_PLAYER_INPUT)
 	{
 	case PlayerInputSelectMode::None:
 		break;
 	case PlayerInputSelectMode::Up:
+		if (static_cast<int>(ItemType::HPPotion) == _CURRENT_CHOICE_ITEM)
+		{
+			_CURRENT_CHOICE_ITEM = static_cast<int>(ItemType::Max) - 1;
+			break;
+		}
 		_CURRENT_CHOICE_ITEM--;
-		if (static_cast<int>(ItemType::None) >=_CURRENT_CHOICE_ITEM)
-			_CURRENT_CHOICE_ITEM++;
 		break;
 	case PlayerInputSelectMode::Down:
+		if (static_cast<int>(ItemType::Max) - 1 == _CURRENT_CHOICE_ITEM)
+		{
+			_CURRENT_CHOICE_ITEM = 0;
+			break;
+		}
 		_CURRENT_CHOICE_ITEM++;
-		if (static_cast<int>(ItemType::Max) <= _CURRENT_CHOICE_ITEM)
-			_CURRENT_CHOICE_ITEM--;
 		break;
 	case PlayerInputSelectMode::Enter:
 		ChoiceProcess();
@@ -88,16 +94,15 @@ void InventoryManager::Update()
 
 void InventoryManager::Render()
 {
-	Utility::GetInstance().PrintTopLine();
 	GameManager::GetInstance().GetPlayer().PrintPlayerStatus(false);
-	Utility::GetInstance().PrintVerticalLine(20);
-	Utility::GetInstance().SetCursorPosition(22, 27);
-	std::cout << "  USE - ENTER" << std::endl;
-	Utility::GetInstance().PrintBottomLine();
 	PrintItemList();
 	Utility::GetInstance().ChangeTextColor(TextColors::Intensity, true);
 	Utility::GetInstance().PrintShape(29, 16, _inventoryShape);
 	Utility::GetInstance().ResetTextColor();
+	Utility::GetInstance().SetCursorPosition(22, 27);
+	std::cout << "  USE - ENTER" << std::endl;
+	Utility::GetInstance().PrintVerticalLine(20, 1, 27);
+	Utility::GetInstance().PrintFrame();
 }
 
 void InventoryManager::SimpleUI()
@@ -135,6 +140,33 @@ ItemBase* InventoryManager::GetItem(ItemType InType)
 	if (_itemList.find(InType) != _itemList.end())
 		return _itemList[InType];
 	return nullptr;
+}
+
+std::map<ItemType, InventoryItem> InventoryManager::GetItemList()
+{
+	std::map<ItemType, InventoryItem> map;
+	for (const auto& [key, value] : _itemList) {
+		if (ItemType::Exit == key)
+			continue;
+
+		InventoryItem data;
+		data._count = value->GetCount();
+		map.insert({key, data});
+	}
+	return map;
+}
+
+void InventoryManager::SetItemList(std::map<ItemType, InventoryItem> InMap)
+{
+	for (const auto& [key, value] : InMap) {
+		if (_itemList.find(key) == _itemList.end())
+		{
+			MessageBox(NULL, (LPCWSTR)L"MonsterMapManager.SetUnDoData() : can't found key...",
+				(LPCWSTR)L"Key Not Found... ", MB_OK | MB_ICONWARNING);
+			continue;
+		}
+		_itemList[key]->ReplaceCount(value._count);
+	}
 }
 
 void InventoryManager::Initialize()

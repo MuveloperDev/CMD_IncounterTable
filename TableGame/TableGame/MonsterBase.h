@@ -23,6 +23,7 @@ public:
 	 MonsterAction GetMonsterAction() const;
 
 	 void SetHp(__int32 InDamage);
+	 void SetReplaceHp(__int32 InHp);
 	 void SetClear(bool InClear);
 	 void SetMonsterAction(MonsterAction InMonsterAction);
 	 void Attack(Player& InPlayer);

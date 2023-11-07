@@ -12,8 +12,10 @@
 #include <algorithm>
 #include <chrono>
 #include <map>
+#include <stack>
 #include <functional>
 #include "Utility.h"
+#include "Structs.h"
 #include "Enum.h"
 #include "GameManager.h"
 #include "BattleManager.h"
@@ -23,34 +25,11 @@
 #include "EscapeTile.h"
 #include "InventoryManager.h"
 #include "ShopManager.h"
+#include "OptionManager.h"
+#include "UnReDoManager.h"
+#include "SaveLoadManager.h"
 
-struct TileCooridnate
-{
-	__int32 _posX;
-	__int32 _posY;
 
-	bool operator<(const TileCooridnate& other) const {
-		if (_posX == other._posX) {
-			return _posY < other._posY;
-		}
-		else {
-			return _posX < other._posX;
-		}
-	}
-};
-struct Sector
-{
-	__int32 _startCoordinateX;
-	__int32 _startCoordinateY;
-	__int32 _endCoordinateX;
-	__int32 _endCoordinateY;
-	MapSector sector;
-	__int32 _maxGeneratingNum;
-	__int32 generatingNum;
-	__int32 generatingLevelNum;
-	__int32 _maxLevelGeneratingNum;
-	std::vector<TileCooridnate> _generatePosX;
-};
 class TableGame
 {
 };

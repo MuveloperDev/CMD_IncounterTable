@@ -69,6 +69,11 @@ void MonsterBase::SetHp(__int32 InDamage)
 	}
 }
 
+void MonsterBase::SetReplaceHp(__int32 InHp)
+{
+	_hp = InHp;
+}
+
 void MonsterBase::SetClear(bool InClear)
 {
 	_isClear = InClear;

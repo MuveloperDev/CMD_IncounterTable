@@ -1,5 +1,6 @@
 #pragma once
 #include "SceneBase.h"
+#include "Enum.h"
 
 class EscapeScene : public SceneBase
 {
@@ -14,6 +15,7 @@ protected:
 	virtual void Music() override;
 	virtual bool SelectProcess() override;
 private:
+	Scene _CURRENT_SCENE;
 	HANDLE hStdout;
 	std::string _restartBtnText;
 	std::string _exitBtnText;

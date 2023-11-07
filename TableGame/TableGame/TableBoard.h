@@ -16,5 +16,8 @@ private:
 	const wchar_t _tableShape;
 	const __int32 _TABLE_SIZE_X;
 	const __int32 _TABLE_SIZE_Y;
+	
+private:
+
 };
 

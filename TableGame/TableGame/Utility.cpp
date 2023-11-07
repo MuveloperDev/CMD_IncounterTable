@@ -19,6 +19,16 @@ void Utility::PrintVerticalLine(__int32 InX, __int32 InStartY, __int32 InEndY)
 	}
 }
 
+void Utility::PrintHorizontalLine(__int32 InStartX, __int32 InEndX, __int32 InY)
+{
+	__int32 limit = InEndX - InStartX;
+	SetCursorPosition(InStartX, InY);
+	for (__int32 i = 0; i <= limit / 2; i++)
+	{
+		std::cout << "��";
+	}
+}
+
 void Utility::PrintHirizontalLine(__int32 InY)
 {
 	Utility::GetInstance().SetCursorPosition(0, InY);
@@ -121,6 +131,51 @@ void Utility::ChangeTextColor(TextColors InColor, bool isForeGround)
 	}
 }
 
+void Utility::ChangeTextColor(TextColors InColor, bool isForeGround, std::function<void()> func)
+{
+	switch (InColor)
+	{
+	case TextColors::None:
+		break;
+	case TextColors::Red:
+		if (true == isForeGround)
+		{
+			SetConsoleTextAttribute(_hConsole, FOREGROUND_RED);
+			break;
+		}
+		SetConsoleTextAttribute(_hConsole, BACKGROUND_RED);
+		break;
+	case TextColors::Green:
+		if (true == isForeGround)
+		{
+			SetConsoleTextAttribute(_hConsole, FOREGROUND_GREEN);
+			break;
+		}
+		SetConsoleTextAttribute(_hConsole, BACKGROUND_GREEN);
+		break;
+	case TextColors::Blue:
+		if (true == isForeGround)
+		{
+			SetConsoleTextAttribute(_hConsole, FOREGROUND_BLUE);
+			break;
+		}
+		SetConsoleTextAttribute(_hConsole, BACKGROUND_BLUE);
+		break;
+	case TextColors::Intensity:
+		if (true == isForeGround)
+		{
+			SetConsoleTextAttribute(_hConsole, FOREGROUND_INTENSITY);
+			break;
+		}
+		SetConsoleTextAttribute(_hConsole, BACKGROUND_INTENSITY);
+		break;
+	default:
+		break;
+	}
+	func();
+	ResetTextColor();
+}
+
 void Utility::ResetTextColor()
 {
 	SetConsoleTextAttribute(_hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
@@ -142,4 +197,22 @@ void Utility::PrintBottomLine()
 {
 	Utility::GetInstance().SetCursorPosition(0, 28);
 	std::cout << "�ǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢǢ�" << std::endl;
+}
+
+void Utility::PrintVerticalLeftLine()
+{
+	Utility::GetInstance().PrintVerticalLine(0, 1, 27);
+}
+
+void Utility::PrintVerticalRightLine()
+{
+	Utility::GetInstance().PrintVerticalLine(118, 1, 27);
+}
+
+void Utility::PrintFrame()
+{
+	PrintTopLine();
+	PrintBottomLine();
+	PrintVerticalLeftLine();
+	PrintVerticalRightLine();
 }

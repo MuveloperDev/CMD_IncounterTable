@@ -1,6 +1,7 @@
 #pragma once
 #include "SceneBase.h"
 
+
 class TitleScene : public SceneBase
 {
 public:
@@ -13,6 +14,7 @@ protected:
 	virtual void Render() override;
 	virtual void Music() override;
 	virtual bool SelectProcess() override;
+
 private:
 	HANDLE hStdout;
 	CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
@@ -20,5 +22,7 @@ private:
 	COORD coordScreen;
 	std::string _startBtnText;
 	std::string _exitBtnText;
+
+
 };
 

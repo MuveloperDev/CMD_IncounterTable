@@ -37,3 +37,8 @@ void ItemBase::SetCount(__int32 InAdd)
 {
 	_count += InAdd;
 }
+
+void ItemBase::ReplaceCount(__int32 InAdd)
+{
+	_count = InAdd;
+}

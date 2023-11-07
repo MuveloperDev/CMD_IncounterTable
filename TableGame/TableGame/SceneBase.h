@@ -6,7 +6,9 @@
 #include <string>
 #include <windows.h>
 #include <vector>
-
+#include <mutex>
+#include <thread>
+#include <future>
 class SceneBase
 {
 public:
@@ -28,6 +30,10 @@ protected:
 	std::string _asciiTitle;
 	PlayerInputSelectMode _CURRENTINPUT;
 	std::vector<Buttons> _buttons;
+	Scene _CURRENT_SCENE;
+	std::vector<int> freqs;
+	std::mutex mtx;
+	std::future<void> asyncMusic;
 protected:
 	virtual void Initialize();
 	virtual void Update();

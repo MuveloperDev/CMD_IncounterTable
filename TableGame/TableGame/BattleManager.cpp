@@ -2,7 +2,7 @@
 
 BattleManager::BattleManager() :
 	_targetMonster(nullptr), _targetTile(nullptr),
-	_CURRENT_BATTLEPAGE(BattlePage::None), _CURRENT_CHOICE_LIST(PlayerChoiceListBattleMode::None),
+	_CURRENT_BATTLEPAGE(BattlePage::None), _CURRENT_CHOICE_LIST(PlayerChoiceListBattleMode::Attack),
 	_pointShape("¢¹"), _PLAYER_INPUT(PlayerInputSelectMode::None), _isRun(false),
 	_hConsole(GetStdHandle(STD_OUTPUT_HANDLE))
 {
@@ -28,7 +28,7 @@ void BattleManager::Update()
 		break;
 	case BattlePage::Player:
 	{
-		_PLAYER_INPUT = GameManager::GetInstance().GetPlayer().GetCurrentInputBattleMode();
+		_PLAYER_INPUT = GameManager::GetInstance().GetPlayer().GetCurrentInputSelectMode();
 		switch (_PLAYER_INPUT)
 		{
 		case PlayerInputSelectMode::None:
@@ -36,7 +36,10 @@ void BattleManager::Update()
 		case PlayerInputSelectMode::Up:
 		{
 			if (PlayerChoiceListBattleMode::Attack == _CURRENT_CHOICE_LIST)
+			{
+				_CURRENT_CHOICE_LIST = PlayerChoiceListBattleMode::Run;
 				return;
+			}
 			__int32 ChoiceNum = static_cast<__int32> (_CURRENT_CHOICE_LIST);
 			ChoiceNum -= 1;
 			_CURRENT_CHOICE_LIST = static_cast<PlayerChoiceListBattleMode>(ChoiceNum);
@@ -45,7 +48,10 @@ void BattleManager::Update()
 		case PlayerInputSelectMode::Down:
 		{
 			if (PlayerChoiceListBattleMode::Run == _CURRENT_CHOICE_LIST)
+			{
+				_CURRENT_CHOICE_LIST = PlayerChoiceListBattleMode::Attack;
 				return;
+			}
 			__int32 ChoiceNum = static_cast<__int32> (_CURRENT_CHOICE_LIST);
 			ChoiceNum += 1;
 			_CURRENT_CHOICE_LIST = static_cast<PlayerChoiceListBattleMode>(ChoiceNum);
@@ -58,6 +64,7 @@ void BattleManager::Update()
 		break;
 	}
 	case BattlePage::Monster:
+		GameManager::GetInstance().PuaseMusic();
 		_targetMonster->Attack(GameManager::GetInstance().GetPlayer());
 		break;
 	default:
@@ -70,8 +77,7 @@ void BattleManager::Update()
 void BattleManager::Render()
 {
 
-	Utility::GetInstance().PrintTopLine();
-	Utility::GetInstance().PrintHirizontalLine(5);
+	Utility::GetInstance().PrintHorizontalLine(2, 116, 5);
 	switch (_PLAYER_INPUT)
 	{
 	case PlayerInputSelectMode::None:
@@ -102,7 +108,7 @@ void BattleManager::Render()
 	
 	PrintMonsterStatus();
 	GameManager::GetInstance().GetPlayer().PrintPlayerStatus(false);
-	Utility::GetInstance().PrintHirizontalLine(24);
+	Utility::GetInstance().PrintHorizontalLine(2, 116, 24);
 	PrintCurrentBattlePage();
 	PrintChoiceList();
 	switch (_CURRENT_BATTLEPAGE)
@@ -118,12 +124,9 @@ void BattleManager::Render()
 		SetConsoleTextAttribute(_hConsole, FOREGROUND_RED);
 		break;
 	}
-	Utility::GetInstance().PrintBottomLine();
-	Utility::GetInstance().PrintComment(_isSelectInventory, 90, 15, "Monster isn't wait your action");
-	//__int32 playerPosX = GameManager::GetInstance().GetPlayer().GetPosX();
-	//__int32 playerPosY = GameManager::GetInstance().GetPlayer().GetPosY();
-	//Utility::GetInstance().SetCursorPosition(0, 25);
-	//std::cout << "Player Pos X : " << playerPosX << " / " << playerPosY;
+
+	Utility::GetInstance().PrintComment(_isSelectInventory, 82, 8, "Monsters don't wait for you to act");
+	Utility::GetInstance().PrintFrame();
 	LateUpdateAfterRender();
 }
 
@@ -137,8 +140,15 @@ void BattleManager::LateUpdateAfterRender()
 		PlayerLateUpdate();
 		break;
 	case BattlePage::Monster:
-		
+		if (true == GameManager::GetInstance().IsPuaseMusic())
+		{
+			Beep(100, 500);
+		}
 		Sleep(1000);
+		if (true == GameManager::GetInstance().IsPuaseMusic())
+		{
+			GameManager::GetInstance().StartMusic();
+		}
 		_targetMonster->SetMonsterAction(MonsterAction::None);
 		SetBattlePage(BattlePage::Player);
 		
@@ -182,8 +192,7 @@ void BattleManager::SetBattlePage(BattlePage InBattlePage)
 
 void BattleManager::PrintMonsterShape()
 {
-	Utility::GetInstance().SetCursorPosition(43, 2);
-	std::cout << _targetMonster->GetMonsterShpae() << std::endl;
+	Utility::GetInstance().PrintShape(43, 2, _targetMonster->GetMonsterShpae());
 
 }
 
@@ -217,9 +226,9 @@ void BattleManager::PrintMonsterStatus()
 		
 	Utility::GetInstance().SetCursorPosition(95, 0);
 	//std::cout << "================================" << std::endl;
-	Utility::GetInstance().SetCursorPosition(95, 1);
-	std::cout << "   [ " << _targetMonster->GetMonsterName() << " ]" << std::endl;
-	Utility::GetInstance().SetCursorPosition(95, 2);
+	Utility::GetInstance().SetCursorPosition(100, 1);
+	std::cout << "[ " << _targetMonster->GetMonsterName() << " ]" << std::endl;
+	Utility::GetInstance().SetCursorPosition(99, 2);
 	std::cout << "HP [ " << _targetMonster->GetHp() << "/" << _targetMonster->GetMaxHp() << " ]" << std::endl;
 	Utility::GetInstance().SetCursorPosition(95, 3);
 	//std::cout << "================================" << std::endl;
@@ -241,7 +250,7 @@ void BattleManager::PrintMonsterStatus()
 void BattleManager::PrintCurrentBattlePage()
 {
 	Utility::GetInstance().PrintVerticalLine(26, 25, 27);
-	Utility::GetInstance().SetCursorPosition(0, 26);
+	Utility::GetInstance().SetCursorPosition(2, 26);
 	switch (_CURRENT_BATTLEPAGE)
 	{
 	case BattlePage::None:
@@ -341,6 +350,7 @@ void BattleManager::PlayerChoiceProcess()
 		break;
 	case PlayerChoiceListBattleMode::Attack:
 	{
+		GameManager::GetInstance().PuaseMusic();
 		__int32 _playerAttackDamage = GameManager::GetInstance().GetPlayer().GetAttackDamage();
 		_targetMonster->SetHp(-_playerAttackDamage);
 		Utility::GetInstance().ClearCmd();
@@ -368,7 +378,7 @@ void BattleManager::Initialize()
 {
 	_targetMonster = nullptr;
 	_targetTile = nullptr;
-	_CURRENT_CHOICE_LIST = PlayerChoiceListBattleMode::None;
+	_CURRENT_CHOICE_LIST = PlayerChoiceListBattleMode::Attack;
 	_PLAYER_INPUT = PlayerInputSelectMode::None;
 	_isRun = false;
 	SetConsoleTextAttribute(_hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
@@ -454,7 +464,15 @@ void BattleManager::PlayerLateUpdate()
 	case PlayerInputSelectMode::Down:
 		break;
 	case PlayerInputSelectMode::Enter:
+		if (true == GameManager::GetInstance().IsPuaseMusic())
+		{
+			Beep(100, 500);
+		}
 		Sleep(1000);
+		if (true == GameManager::GetInstance().IsPuaseMusic())
+		{
+			GameManager::GetInstance().StartMusic();
+		}
 		if (true == _isRun)
 		{
 			GameManager::GetInstance().ChangeGameMode(GameMode::TableMode, nullptr);

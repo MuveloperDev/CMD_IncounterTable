@@ -15,6 +15,8 @@ public:
 	void Render();
 	void SimpleUI();
 	ItemBase* GetItem(ItemType InType);
+	std::map<ItemType, InventoryItem> GetItemList();
+	void SetItemList(std::map<ItemType, InventoryItem> InMap);
 private:
 	__int32 _CURRENT_CHOICE_ITEM;
 	HANDLE _hConsole;

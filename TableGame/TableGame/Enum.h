@@ -6,11 +6,15 @@ enum class GameMode
 	TableMode,
 	BattleMode,
 	InventoryMode,
-	ShopMode
+	ShopMode,
+	OptionMode,
+	UnReDoMode,
+	SaveLoadMode,
 };
 enum class Scene
 {
 	None,
+	Intro,
 	Title,
 	Game,
 	Lose,
@@ -84,6 +88,56 @@ enum class TextColors
 	Green,
 	Blue,
 	Intensity
+};
+enum class PlayerInputTableMode
+{
+	None,
+	Right,
+	Left,
+	Up,
+	Down,
+	ESC,
+	Enter
+};
+
+enum class Options
+{
+	UndoRedo = 0,
+	SaveLoad,
+	Exit,
+	Max
+};
+
+enum class UnReDo
+{
+	Undo = 0,
+	Redo,
+	Exit,
+	Max
+};
+
+enum class SaveLoadList
+{
+	Select1 = 0,
+	Select2,
+	Select3,
+	Select4,
+	Select5,
+	Select6,
+	Select7,
+	Select8,
+	Select9,
+	Select10,
+	Exit,
+	Max,
+};
+
+enum class SaveLoadPopup
+{
+	Save = 0,
+	Load,
+	Exit,
+	Max
 };
 class Enum
 {

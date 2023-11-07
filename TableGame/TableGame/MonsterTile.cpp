@@ -6,7 +6,10 @@
 
 MonsterTile::MonsterTile(__int32 InPosX, __int32 InPosY, MonsterType InMonsterType):
 	_posX(InPosX), _posY(InPosY), _monsterType(InMonsterType), _monster(nullptr), _isClear(false)
-{}
+{
+	if (nullptr == _monster)
+		Initialize();
+}
 
 MonsterTile::~MonsterTile()
 {
@@ -15,6 +18,9 @@ MonsterTile::~MonsterTile()
 
 void MonsterTile::Initialize()
 {
+	if (nullptr != _monster)
+		delete _monster;
+
 	switch (_monsterType)
 	{
 	case MonsterType::Skeleton:
@@ -38,7 +44,7 @@ void MonsterTile::Initialize()
 
 void MonsterTile::Awake()
 {
-	Initialize();
+
 }
 
 void MonsterTile::Start()
@@ -47,7 +53,6 @@ void MonsterTile::Start()
 
 void MonsterTile::Update()
 {
-
 	__int32 playerPosX = GameManager::GetInstance().GetPlayer().GetPosX();
 	__int32 playerPosY = GameManager::GetInstance().GetPlayer().GetPosY();
 	if (playerPosX == _posX && playerPosY == _posY )
@@ -58,35 +63,12 @@ void MonsterTile::Update()
 			return;
 
 		GameManager::GetInstance().ChangeGameMode(GameMode::BattleMode, this);
-		//Utility::GetInstance().SetCursorPosition(0, 4);
-		//std::cout << "BattleMode";
 	}
 	else
 	{
 		if (true == _isRun)
 			_isRun = false;
 	}
-	//switch (_monsterType)
-	//{
-	//case MonsterType::Skeleton:
-	//	Utility::GetInstance().SetCursorPosition(0, 0);
-	//	std::cout << "Sekeleton";
-	//	break;
-	//case MonsterType::Devil:
-	//	Utility::GetInstance().SetCursorPosition(0, 1);
-	//	std::cout << "Devil";
-	//	break;
-	//case MonsterType::Skull:
-	//	Utility::GetInstance().SetCursorPosition(0, 2);
-	//	std::cout << "Skull";
-	//	break;
-	//case MonsterType::ParasiticBat:
-	//	Utility::GetInstance().SetCursorPosition(0, 3);
-	//	std::cout << "Bat";
-	//	break;
-	//default:
-	//	break;
-	//}
 }
 
 bool MonsterTile::GetIsClear() const

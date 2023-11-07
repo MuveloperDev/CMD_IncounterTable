@@ -81,7 +81,10 @@ void Player::Update()
 	case GameMode::BattleMode:
 	case GameMode::InventoryMode:
 	case GameMode::ShopMode:
-		BattleInput();
+	case GameMode::OptionMode:
+	case GameMode::UnReDoMode:
+	case GameMode::SaveLoadMode:
+		SelectInput();
 		break;
 	default:
 		break;
@@ -119,9 +122,19 @@ void Player::InitCurrentBattleInput()
 	_CURRENTINPUT = PlayerInputSelectMode::None;
 }
 
-PlayerInputSelectMode Player::GetCurrentInputBattleMode()
+void Player::InitCurrentTableInput()
+{
+	_CURRENT_TABLE_INPUT = PlayerInputTableMode::None;
+}
+
+PlayerInputSelectMode Player::GetCurrentInputSelectMode()
 {
 	return _CURRENTINPUT;
+}
+
+PlayerInputTableMode Player::GetCurrentInputTableMode()
+{
+	return _CURRENT_TABLE_INPUT;
 }
 
 __int32 Player::GetHp() const
@@ -147,9 +160,10 @@ __int32 Player::GetGold() const
 void Player::SetHp(__int32 InDamage)
 {
 	_hp += InDamage;
-	if (0 > _hp)
+	if (0 >= _hp)
 	{
 		_hp = 0;
+		GameManager::GetInstance().ChangeScene(Scene::Lose);
 	}
 	else if (_hp > _maxHp)
 	{
@@ -193,53 +207,68 @@ void Player::Move()
 	SHORT leftState = GetAsyncKeyState(VK_LEFT);
 	SHORT uptState = GetAsyncKeyState(VK_UP);
 	SHORT downState = GetAsyncKeyState(VK_DOWN);
+	SHORT escapeState = GetAsyncKeyState(VK_ESCAPE);
+	SHORT enterState = GetAsyncKeyState(VK_RETURN);
 	bool isRight = (rightState & 0x8000) != 0;
 	bool isLeft = (leftState & 0x8000) != 0;
 	bool isUp = (uptState & 0x8000) != 0;
 	bool isDown = (downState & 0x8000) != 0;
+	bool isESC = (escapeState & 0x8000) != 0;
+	bool isEnter = (enterState & 0x8000) != 0;
 
-	if (isRight || isLeft || isUp || isDown)
+	if (isRight || isLeft || isUp || isDown || isESC || isEnter)
 	{
 		if (isKeyDown == false)
 		{
+			GameManager::GetInstance().GetUnReDoManager().SetUnDo();
 			if (isRight)
 			{
 				if (_TABLE_SIZE_X <= _posX +1)
 					return;
-
+				_CURRENT_TABLE_INPUT = PlayerInputTableMode::Right;
 				_posX++;
 			}
 			if (isLeft)
 			{
 				if (0 > _posX -1)
 					return;
-
+				_CURRENT_TABLE_INPUT = PlayerInputTableMode::Left;
 				_posX--;
 			}
 			if (isUp)
 			{
 				if (0 > _posY -1)
 					return;
-
+				_CURRENT_TABLE_INPUT = PlayerInputTableMode::Up;
 				_posY--;
 			}
 			if (isDown)
 			{
 				if (_TABLE_SIZE_Y <= _posY +1)
 					return;
-
+				_CURRENT_TABLE_INPUT = PlayerInputTableMode::Down;
 				_posY++;
+			}
+			if (isESC)
+			{
+				_CURRENT_TABLE_INPUT = PlayerInputTableMode::ESC;
+				GameManager::GetInstance().ChangeGameMode(GameMode::OptionMode, nullptr);
+			}
+			if (isEnter)
+			{
+				_CURRENT_TABLE_INPUT = PlayerInputTableMode::Enter;
 			}
 		}
 		isKeyDown = true;
 	}
 	else
 	{
+		_CURRENT_TABLE_INPUT = PlayerInputTableMode::None;
 		isKeyDown = false;
 	}
 }
 
-void Player::BattleInput()
+void Player::SelectInput()
 {
 	SHORT uptState = GetAsyncKeyState(VK_UP);
 	SHORT downState = GetAsyncKeyState(VK_DOWN);
@@ -272,29 +301,51 @@ void Player::BattleInput()
 	}
 	else
 	{
+		_CURRENTINPUT = PlayerInputSelectMode::None;
 		isKeyDown = false;
 	}
 }
+SavePlayerData Player::GetUnDoData()
+{
+	SavePlayerData data;
+	data.hp = _hp;
+	data.gold = _gold;
+	data.attackDamge = _attackDamge;
+	data.playerPosX = _posX;
+	data.playerPosY = _posY;
+	data._itemList = GameManager::GetInstance().GetInventoryManager().GetItemList();
+	return data;
+}
+
+void Player::SetUnDoData(SavePlayerData InData)
+{
+	_hp = InData.hp;
+	_gold = InData.gold;
+	_attackDamge = InData.attackDamge;
+	_posX = InData.playerPosX;
+	_posY = InData.playerPosY;
+	GameManager::GetInstance().GetInventoryManager().SetItemList(InData._itemList);
+}
+
 void Player::PrintPlayerStatus(bool InisFrame)
 {
 	if (true == InisFrame)
 	{
-		Utility::GetInstance().SetCursorPosition(1, 0);
+		Utility::GetInstance().SetCursorPosition(3, 0);
 		std::cout << "================================" << std::endl;
 	}
 
-
-	Utility::GetInstance().SetCursorPosition(1, 1);
+	Utility::GetInstance().SetCursorPosition(3, 1);
 	std::cout << "[ S T A T U S ]" << std::endl;
-	Utility::GetInstance().SetCursorPosition(1, 2);
+	Utility::GetInstance().SetCursorPosition(3, 2);
 	std::cout << "HP [ " << GameManager::GetInstance().GetPlayer().GetHp() << "/" << GameManager::GetInstance().GetPlayer().GetMaxHp() << " ]" << std::endl;
-	Utility::GetInstance().SetCursorPosition(1, 3);
+	Utility::GetInstance().SetCursorPosition(3, 3);
 	std::cout << "POWER [ " << GameManager::GetInstance().GetPlayer().GetAttackDamage() << " ]" << std::endl;
-	Utility::GetInstance().SetCursorPosition(1, 4);
+	Utility::GetInstance().SetCursorPosition(3, 4);
 	std::cout << "GOLD [ " << GameManager::GetInstance().GetPlayer().GetGold() << " ]" << std::endl;
 	if (true == InisFrame)
 	{
-		Utility::GetInstance().SetCursorPosition(1, 5);
+		Utility::GetInstance().SetCursorPosition(3, 5);
 		std::cout << "================================";
 	}
 	GameMode currentMode = GameManager::GetInstance().GetCurrentGameMode();
@@ -310,7 +361,7 @@ void Player::PrintPlayerStatus(bool InisFrame)
 		break;
 	case GameMode::InventoryMode:
 	case GameMode::ShopMode:
-		Utility::GetInstance().PrintShape(1, 5, _playerShopShape);
+		Utility::GetInstance().PrintShape(2, 5, _playerShopShape);
 		break;
 	}
 

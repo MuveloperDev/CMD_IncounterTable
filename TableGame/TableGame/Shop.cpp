@@ -76,7 +76,7 @@ void Shop::Update()
 	if (this != GameManager::GetInstance().GetShopManager().GetTargetShop())
 		return;
 
-	_PLAYER_INPUT = GameManager::GetInstance().GetPlayer().GetCurrentInputBattleMode();
+	_PLAYER_INPUT = GameManager::GetInstance().GetPlayer().GetCurrentInputSelectMode();
 	switch (_PLAYER_INPUT)
 	{
 	case PlayerInputSelectMode::None:

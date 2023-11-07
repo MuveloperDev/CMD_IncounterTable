@@ -16,6 +16,7 @@ public:
 	__int32 GetCount();
 	__int32 GetPrice();
 	void SetCount(__int32 InAdd);
+	void ReplaceCount(__int32 InAdd);
 protected:
 	ItemType _type;
 	__int32 _count;

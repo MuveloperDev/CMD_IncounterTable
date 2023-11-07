@@ -1,5 +1,8 @@
 #pragma once
+#include "Structs.h"
+#include "UnReDoManager.h"
 #include "TableGame.h"
+
 
 class Player
 {
@@ -15,7 +18,9 @@ public:
 	const wchar_t GetShape() const;
 	void Test();
 	void InitCurrentBattleInput();
-	PlayerInputSelectMode GetCurrentInputBattleMode();
+	void InitCurrentTableInput();
+	PlayerInputSelectMode GetCurrentInputSelectMode();
+	PlayerInputTableMode GetCurrentInputTableMode();
 	void PrintPlayerStatus(bool InisFrame);
 public:
 	__int32 GetHp() const;
@@ -28,17 +33,13 @@ public:
 	void SetGold(__int32 InAddGold);
 	void SetPosX(__int32 InX);
 	void SetPosY(__int32 InY);
+	SavePlayerData GetUnDoData();
+	void SetUnDoData(SavePlayerData InData);
 private:
-	enum Dir
-	{
-		Right,
-		Left,
-		Up,
-		Down
-	};
+
 	void Initialize();
 	void Move();
-	void BattleInput();
+	void SelectInput();
 	__int32 _maxHp;
 	__int32 _hp;
 	__int32 _attackDamge;
@@ -53,5 +54,6 @@ private:
 	std::string _playerDefaultShape;
 	std::string _playerShopShape;
 	PlayerInputSelectMode _CURRENTINPUT;
+	PlayerInputTableMode _CURRENT_TABLE_INPUT;
 };
 

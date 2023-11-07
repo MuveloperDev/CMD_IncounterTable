@@ -1,5 +1,6 @@
 ﻿#include "TableBoard.h"
-
+#include <thread>
+#include <future>
 
 //L을 붙이는 이유는 WideString임을 컴파일러에게 미리 알려주는것.
 TableBoard::TableBoard( __int32 InTableSizeX, __int32 InTableSizeY) : 
