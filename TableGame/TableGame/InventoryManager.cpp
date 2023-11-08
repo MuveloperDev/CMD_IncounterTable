@@ -381,7 +381,6 @@ void InventoryManager::HorizontalInputProcess()
 		}
 		default:
 			break;
-
 		}
 		break;
 	}
