@@ -5,7 +5,7 @@ class ItemPowerUp : public ItemBase
 public:
 	ItemPowerUp();
 	~ItemPowerUp();
-	virtual void Use() override;
+	virtual void Use(__int32 InCnt) override;
 
 private:
 	__int32 increasePower;

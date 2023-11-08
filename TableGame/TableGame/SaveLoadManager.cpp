@@ -30,29 +30,17 @@ SaveLoadManager::SaveLoadManager():
                                                     
 )")
 {
-	for (__int32 i = 0; i < 10; i++)
-	{
-		std::string key = "SaveFile" + std::to_string(i) + ".txt";
-		if (false == std::filesystem::exists(key))
-		{
-			SaveFileData data;
-			data.fileInfo = "Empty";
-			_saveLoadList.insert({ i, data });
-		}
-		else
-		{
-			std::ifstream ifs(key);
-			boost::archive::text_iarchive ia(ifs);
-			SaveFileData data;
-			ia >> data;
-			_saveLoadList.insert({ i, data });
-		}
-	}
+
 
 }
 
 SaveLoadManager::~SaveLoadManager()
 {
+}
+
+void SaveLoadManager::Awake()
+{
+	Initialize();
 }
 
 void SaveLoadManager::Update()
@@ -206,6 +194,30 @@ void SaveLoadManager::Load(__int32 idx)
 	GameManager::GetInstance().GetPlayer().SetUnDoData(data.data.playerData);
 	GameManager::GetInstance().GetMonsterMapManager().LoadData(data.data.monsterData);
 	ClosePopup();
+}
+
+void SaveLoadManager::Initialize()
+{
+	_saveLoadList.clear();
+	for (__int32 i = 0; i < 10; i++)
+	{
+		std::string key = "SaveFile" + std::to_string(i) + ".txt";
+		if (false == std::filesystem::exists(key))
+		{
+			SaveFileData data;
+			data.fileInfo = "Empty";
+			_saveLoadList.insert({ i, data });
+		}
+		else
+		{
+			std::ifstream ifs(key);
+			boost::archive::text_iarchive ia(ifs);
+			SaveFileData data;
+			ia >> data;
+			_saveLoadList.insert({ i, data });
+		}
+	}
+
 }
 
 void SaveLoadManager::ChoiceProcess()

@@ -52,6 +52,14 @@ void GameManager::customDeleter(GameManager* gm)
 {
 	delete gm->_player;
 	delete gm->_tableBoard;
+	delete gm->_escapeTile;
+	delete gm->_monsterMapManager;
+	delete gm->_battleManager;
+	delete gm->_inventoryManager;
+	delete gm->_shopManager;
+	delete gm->_unReDoManager;
+	delete gm->_optionManager;
+	delete gm->_saveLoadManager;
 }
 
 void GameManager::InitSingleton()
@@ -138,15 +146,18 @@ void GameManager::Awake()
 	_monsterMapManager->Awake();
 	_tableBoard -> Awake();
 	_player -> Awake();
+	_battleManager->Awake();
 	_inventoryManager->Awake();
 	_shopManager->Awake();
 	_optionManager->Awake();
+	_saveLoadManager->Awake();
 }
 
 void GameManager::Start()
 {
 	asyncMusic = std::async(std::launch::async, &GameManager::Music, this);
 	_monsterMapManager->Start();
+	_battleManager->Start();
 	_tableBoard->Start();
 	_player->Start();
 	_inventoryManager->Start();

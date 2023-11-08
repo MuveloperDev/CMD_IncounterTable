@@ -18,20 +18,6 @@ public:
 	void IsPlayerOnShop();
 	Shop* GetTargetShop();
 public :
-	struct TileCoordinate
-	{
-		__int32 _posX;
-		__int32 _posY;
-
-		bool operator<(const TileCoordinate& other) const {
-			if (_posX == other._posX) {
-				return _posY < other._posY;
-			}
-			else {
-				return _posX < other._posX;
-			}
-		}
-	};
 	struct Sector
 	{
 		__int32 _startCoordinateX;

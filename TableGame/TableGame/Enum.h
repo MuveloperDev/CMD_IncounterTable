@@ -32,7 +32,8 @@ enum class MonsterType
 	Devil,
 	BigFoot,
 	Cyclops,
-	ParasiticBat
+	ParasiticBat,
+	Dragon,
 };
 enum class MapSector
 {
@@ -47,7 +48,8 @@ enum class PlayerInputSelectMode
 	None,
 	Up,
 	Down,
-	Enter
+	Enter,
+	ESC,
 };
 
 enum class PlayerChoiceListBattleMode
@@ -77,6 +79,7 @@ enum class ItemType
 	None = -1,
 	HPPotion = 0,
 	PowerUp,
+	MaxHPPotion,
 	Exit,
 	Max,
 };
@@ -100,10 +103,18 @@ enum class PlayerInputTableMode
 	Enter
 };
 
+enum class UIHorizontalInput
+{
+	None,
+	Left,
+	Right
+};
+
 enum class Options
 {
 	UndoRedo = 0,
 	SaveLoad,
+	Inventory,
 	Exit,
 	Max
 };
@@ -137,6 +148,13 @@ enum class SaveLoadPopup
 	Save = 0,
 	Load,
 	Exit,
+	Max
+};
+
+enum class TitleMode
+{
+	Title = 0,
+	Difficult,
 	Max
 };
 class Enum

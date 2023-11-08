@@ -47,7 +47,7 @@ Shop::Shop(__int32 InPosX, __int32 InPosY) :
 ***************   ***********--=====--**********| *********
 ***************___*********** |=====| **********|***********
  *************     ********* /=======\ ******** | *********
-)")
+)"), _CURRENT_CHOICE_ITEM_BUT_COUNT(0)
 {
 }
 
@@ -85,18 +85,19 @@ void Shop::Update()
 		_CURRENT_CHOICE_ITEM--;
 		if (static_cast<int>(ItemType::None) >= _CURRENT_CHOICE_ITEM)
 			_CURRENT_CHOICE_ITEM++;
+		_CURRENT_CHOICE_ITEM_BUT_COUNT = 1;
 		break;
 	case PlayerInputSelectMode::Down:
 		_CURRENT_CHOICE_ITEM++;
 		if (static_cast<int>(ItemType::Max) <= _CURRENT_CHOICE_ITEM)
 			_CURRENT_CHOICE_ITEM--;
+		_CURRENT_CHOICE_ITEM_BUT_COUNT = 1;
 		break;
 	case PlayerInputSelectMode::Enter:
 		ChoiceProcess();
 		break;
-	default:
-		break;
 	}
+	UpdateBuyCount();
 }
 
 void Shop::Render()
@@ -148,6 +149,9 @@ void Shop::Initialize()
 		case ItemType::PowerUp:
 			_itemList.insert({ ItemType::PowerUp,   static_cast<ItemBase*>(new ItemPowerUp()) });
 			break;
+		case ItemType::MaxHPPotion:
+			_itemList.insert({ ItemType::MaxHPPotion,   static_cast<ItemBase*>(new ItemPowerUp()) });
+			break;
 		case ItemType::Max:
 			break;
 		default:
@@ -195,21 +199,31 @@ void Shop::PrintItemList()
 		case ItemType::HPPotion:
 			if (key != static_cast<ItemType>(_CURRENT_CHOICE_ITEM))
 			{
-				std::cout << "  HP Potion - [ " << base->GetPrice() << " G ]" << std::endl;
+				std::cout << "  HP Potion - [ " << base->GetPrice() << " G ] [ - 0 + ]" << std::endl;
 				break;
 			}
 			Utility::GetInstance().ChangeTextColor(TextColors::Green, false);
-			std::cout << _pointShape << "HP Potion - [ " << base->GetPrice() << " G ]" << std::endl;
+			std::cout << _pointShape << "HP Potion - [ " << base->GetPrice() << " G ] " << "[ - " << _CURRENT_CHOICE_ITEM_BUT_COUNT << " + ]" << std::endl;
 			Utility::GetInstance().ResetTextColor();
 			break;
 		case ItemType::PowerUp:
 			if (key != static_cast<ItemType>(_CURRENT_CHOICE_ITEM))
 			{
-				std::cout << "  Power Up - [ " << base->GetPrice() << " G ]" << std::endl;
+				std::cout << "  Power Up - [ " << base->GetPrice() << " G ] [ - 0 + ]" << std::endl;
 				break;
 			}
 			Utility::GetInstance().ChangeTextColor(TextColors::Green, false);
-			std::cout << _pointShape << "Power Up - [ " << base->GetPrice() << " G ]" << std::endl;
+			std::cout << _pointShape << "Power Up - [ " << base->GetPrice() << " G ] " << "[ - " << _CURRENT_CHOICE_ITEM_BUT_COUNT << " + ]" << std::endl;
+			Utility::GetInstance().ResetTextColor();
+			break;
+		case ItemType::MaxHPPotion:
+			if (key != static_cast<ItemType>(_CURRENT_CHOICE_ITEM))
+			{
+				std::cout << "  Max HP Potion - [ " << base->GetPrice() << " G ] [ - 0 + ]" << std::endl;
+				break;
+			}
+			Utility::GetInstance().ChangeTextColor(TextColors::Green, false);
+			std::cout << _pointShape << "Max HP Potion - [ " << base->GetPrice() << " G ] " << "[ - " << _CURRENT_CHOICE_ITEM_BUT_COUNT << " + ]" << std::endl;
 			Utility::GetInstance().ResetTextColor();
 			break;
 		case ItemType::Exit:
@@ -241,26 +255,39 @@ void Shop::ChoiceProcess()
 	case ItemType::HPPotion:
 	{
 		ItemBase* base = _itemList[type];
-		if (0 > GameManager::GetInstance().GetPlayer().GetGold() - base->GetPrice())
+		if (0 > GameManager::GetInstance().GetPlayer().GetGold() - base->GetPrice() * _CURRENT_CHOICE_ITEM_BUT_COUNT)
 		{
 			_isLackOfMoney = true;
 			break;
 		}
-		GameManager::GetInstance().GetPlayer().SetGold(-base->GetPrice());
-		GameManager::GetInstance().GetInventoryManager().GetItem(ItemType::HPPotion)->SetCount(1);
+		GameManager::GetInstance().GetPlayer().SetGold(-base->GetPrice() * _CURRENT_CHOICE_ITEM_BUT_COUNT);
+		GameManager::GetInstance().GetInventoryManager().GetItem(ItemType::HPPotion)->SetCount(_CURRENT_CHOICE_ITEM_BUT_COUNT);
 		_isBuy = true;
 		break;
 	}
 	case ItemType::PowerUp:
 	{
 		ItemBase* base = _itemList[type];
-		if (0 > GameManager::GetInstance().GetPlayer().GetGold() - base->GetPrice())
+		if (0 > GameManager::GetInstance().GetPlayer().GetGold() - base->GetPrice() * _CURRENT_CHOICE_ITEM_BUT_COUNT)
 		{
 			_isLackOfMoney = true;
 			break;
 		}
-		GameManager::GetInstance().GetPlayer().SetGold(-base->GetPrice());
-		GameManager::GetInstance().GetInventoryManager().GetItem(ItemType::PowerUp)->SetCount(1);
+		GameManager::GetInstance().GetPlayer().SetGold(-base->GetPrice() * _CURRENT_CHOICE_ITEM_BUT_COUNT);
+		GameManager::GetInstance().GetInventoryManager().GetItem(ItemType::PowerUp)->SetCount(_CURRENT_CHOICE_ITEM_BUT_COUNT);
+		_isBuy = true;
+		break;
+	}
+	case ItemType::MaxHPPotion:
+	{
+		ItemBase* base = _itemList[type];
+		if (0 > GameManager::GetInstance().GetPlayer().GetGold() - base->GetPrice() * _CURRENT_CHOICE_ITEM_BUT_COUNT)
+		{
+			_isLackOfMoney = true;
+			break;
+		}
+		GameManager::GetInstance().GetPlayer().SetGold(-base->GetPrice() * _CURRENT_CHOICE_ITEM_BUT_COUNT);
+		GameManager::GetInstance().GetInventoryManager().GetItem(ItemType::MaxHPPotion)->SetCount(_CURRENT_CHOICE_ITEM_BUT_COUNT);
 		_isBuy = true;
 		break;
 	}
@@ -273,8 +300,6 @@ void Shop::ChoiceProcess()
 		break;
 	}
 	case ItemType::Max:
-		break;
-	default:
 		break;
 	}
 }
@@ -311,5 +336,56 @@ void Shop::PrintLine(__int32 InX)
 	{
 		Utility::GetInstance().SetCursorPosition(InX, i);
 		std::cout << "▥" << std::endl;
+	}
+}
+
+void Shop::UpdateBuyCount()
+{
+	SHORT lefttState = GetAsyncKeyState(VK_LEFT);
+	SHORT rightState = GetAsyncKeyState(VK_RIGHT);
+
+	bool isLeft = (lefttState & 0x8000) != 0;
+	bool isRight = (rightState & 0x8000) != 0;
+
+	if (isLeft || isRight)
+	{
+		if (_isKeyDown == false)
+		{
+			if (isLeft)
+			{
+				if (1 == _CURRENT_CHOICE_ITEM_BUT_COUNT)
+					_CURRENT_CHOICE_ITEM_BUT_COUNT = 1;
+				else _CURRENT_CHOICE_ITEM_BUT_COUNT--;
+			}
+			if (isRight)
+			{
+				__int32 playerGold = GameManager::GetInstance().GetPlayer().GetGold();
+				ItemType type = static_cast<ItemType>(_CURRENT_CHOICE_ITEM);
+				switch (type)
+				{
+				case ItemType::HPPotion:
+				case ItemType::PowerUp:
+				case ItemType::MaxHPPotion:
+				{
+					ItemBase* base = _itemList[type];
+					if (playerGold <= _CURRENT_CHOICE_ITEM_BUT_COUNT * base->GetPrice())
+					{
+						_CURRENT_CHOICE_ITEM_BUT_COUNT = playerGold / base->GetPrice();
+					}
+					else _CURRENT_CHOICE_ITEM_BUT_COUNT++;
+					break;
+				}
+				default:
+					break;
+				}
+
+			}
+			Utility::GetInstance().ClearCmd();
+		}
+		_isKeyDown = true;
+	}
+	else
+	{
+		_isKeyDown = false;
 	}
 }

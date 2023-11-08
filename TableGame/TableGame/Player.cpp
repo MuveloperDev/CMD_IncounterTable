@@ -176,6 +176,11 @@ void Player::SetAttackDamage(__int32 InAddDamage)
 	_attackDamge += InAddDamage;
 }
 
+void Player::SetMaxHP(__int32 InAddHP)
+{
+	_maxHp += InAddHP;
+}
+
 void Player::SetGold(__int32 InAddGold)
 {
 	_gold += InAddGold;
@@ -198,7 +203,7 @@ void Player::Initialize()
 	_maxHp = 100;
 	_hp = _maxHp;
 	_attackDamge = 10;
-	_gold = 0;
+	_gold = 100;
 }
 
 void Player::Move()
@@ -273,12 +278,12 @@ void Player::SelectInput()
 	SHORT uptState = GetAsyncKeyState(VK_UP);
 	SHORT downState = GetAsyncKeyState(VK_DOWN);
 	SHORT enterState = GetAsyncKeyState(VK_RETURN);
-
+	SHORT escapeState = GetAsyncKeyState(VK_ESCAPE);
 	bool isUp = (uptState & 0x8000) != 0;
 	bool isDown = (downState & 0x8000) != 0;
 	bool isEnter = (enterState & 0x8000) != 0;
-
-	if (isUp || isDown || isEnter)
+	bool isESC = (escapeState & 0x8000) != 0;
+	if (isUp || isDown || isEnter || isESC)
 	{
 		if (isKeyDown == false)
 		{
@@ -296,6 +301,10 @@ void Player::SelectInput()
 				//GameManager::GetInstance().ChangeGameMode(GameMode::TableMode, nullptr);
 				//GameManager::GetInstance().GetBattleManager().GetTargetTile().SetIsClear(true);
 			}
+			if (isESC)
+			{
+				_CURRENTINPUT = PlayerInputSelectMode::ESC;
+			}
 		}
 		isKeyDown = true;
 	}
@@ -309,6 +318,7 @@ SavePlayerData Player::GetUnDoData()
 {
 	SavePlayerData data;
 	data.hp = _hp;
+	data.maxHP = _maxHp;
 	data.gold = _gold;
 	data.attackDamge = _attackDamge;
 	data.playerPosX = _posX;
@@ -324,6 +334,7 @@ void Player::SetUnDoData(SavePlayerData InData)
 	_attackDamge = InData.attackDamge;
 	_posX = InData.playerPosX;
 	_posY = InData.playerPosY;
+	_maxHp = InData.maxHP;
 	GameManager::GetInstance().GetInventoryManager().SetItemList(InData._itemList);
 }
 

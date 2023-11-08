@@ -131,6 +131,8 @@ void MonsterMapManager::Initialize()
 		}
 		_monsterTileInfo.clear();
 	}
+	_difficult = static_cast<int>(GameManager::GetInstance().GetDifficult());
+	SetMaxGeneratingNum(_difficult);
 	InitializeRandomMapPos();
 }
 void MonsterMapManager::GenerateRandomXPos(MapSector InSector, __int32 InLevel)
@@ -184,6 +186,12 @@ void MonsterMapManager::GenerateRandomXPos(MapSector InSector, __int32 InLevel)
 	{
 		std::uniform_int_distribution<int> distribution(sector4._startCoordinateX, sector4._endCoordinateX);
 		__int32 random_number = distribution(generator);
+		if ((_tableSizeY / 2 - 2 == InLevel && _tableSizeX - 1 == random_number) ||
+			(_tableSizeY / 2 - 1 == InLevel && _tableSizeX - 2 == random_number))
+		{
+			GenerateRandomXPos(MapSector::Sector4, InLevel);
+			break;
+		}
 
 		if (true == hasDuplicatedSectorPos(sector4._generatePosX, TileCoordinate(random_number, InLevel)))
 		{
@@ -261,6 +269,12 @@ void MonsterMapManager::InitializeRandomMapPos()
 				}
 				break;
 			case MapSector::Sector4:
+				if ((_tableSizeY - 2 == y && _tableSizeX - 1 == x) ||
+					(_tableSizeY - 1 == y && _tableSizeX - 2 == x))
+				{
+					_monsterTileInfo.insert({ TileCoordinate{x, y},new MonsterTile(x, y, MonsterType::Dragon) });
+					break;
+				}
 				if (sector4.generatingNum < sector4._maxGeneratingNum)
 				{
 					TileCoordinate sector4Last = sector4._generatePosX.back();
@@ -304,6 +318,14 @@ void MonsterMapManager::ReverseSectorPos()
 		});
 }
 
+void MonsterMapManager::SetMaxGeneratingNum(__int32 InDifficult)
+{
+	sector1._maxGeneratingNum = InDifficult;
+	sector2._maxGeneratingNum = InDifficult;
+	sector3._maxGeneratingNum = InDifficult;
+	sector4._maxGeneratingNum = InDifficult;
+}
+
 SaveMonsterTileInfo MonsterMapManager::GetUnDoData()
 {
 	SaveMonsterTileInfo data;
@@ -312,9 +334,12 @@ SaveMonsterTileInfo MonsterMapManager::GetUnDoData()
 		SaveMonsterData mData;
 		mData.monster_Hp = value->GetMonster()->GetHp();
 		mData.monster_IsClear = value->GetMonster()->GetIsClear();
+		mData._monsterGoldReward = value->GetMonster()->GetGoldReward();
+		mData._monsterPower = value->GetMonster()->GetAttackDamage();
 		mData.isClear = value->GetIsClear();
 		mData.isRun = value->GetIsRun();
 		mData.type = value->GetMonster()->GetMonsterType();
+
 		data.data.insert({ key, mData });
 	}
 
@@ -334,6 +359,8 @@ void MonsterMapManager::SetUndoData(SaveMonsterTileInfo InData)
 		SaveMonsterData data = InData.data[key];
 		value->GetMonster()->SetReplaceHp(data.monster_Hp);
 		value->GetMonster()->SetClear(data.monster_IsClear);
+		value->GetMonster()->SetGoldReward(data._monsterGoldReward);
+		value->GetMonster()->SetAttackDamage(data._monsterPower);
 		value->SetIsClear(data.isClear);
 		value->SetIsRun(data.isRun);
 	}
@@ -352,6 +379,8 @@ void MonsterMapManager::LoadData(SaveMonsterTileInfo InData)
 		_monsterTileInfo.insert({ key, new MonsterTile(key._posX, key._posY, value.type)});
 		_monsterTileInfo[key]->GetMonster()->SetReplaceHp(value.monster_Hp);
 		_monsterTileInfo[key]->GetMonster()->SetClear(value.monster_IsClear);
+		_monsterTileInfo[key]->GetMonster()->SetGoldReward(value._monsterGoldReward);
+		_monsterTileInfo[key]->GetMonster()->SetAttackDamage(value._monsterPower);
 		_monsterTileInfo[key]->SetIsClear(value.isClear);
 		_monsterTileInfo[key]->SetIsRun(value.isRun);
 	}

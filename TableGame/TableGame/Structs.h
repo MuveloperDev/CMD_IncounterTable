@@ -58,6 +58,7 @@ struct SavePlayerData
 	__int32 hp;
 	__int32 attackDamge;
 	__int32 gold;
+	__int32 maxHP;
 	std::map<ItemType, InventoryItem> _itemList;
 
 	template<class Archive>
@@ -68,6 +69,7 @@ struct SavePlayerData
 		ar& hp;
 		ar& attackDamge;
 		ar& gold;
+		ar& maxHP;
 		std::map<int, InventoryItem> _int_itemList;
 		if (Archive::is_saving::value) {
 			for (auto& pair : _itemList) {
@@ -85,6 +87,8 @@ struct SavePlayerData
 struct SaveMonsterData
 {
 	__int32 monster_Hp;
+	__int32 _monsterGoldReward;
+	__int32 _monsterPower;
 	bool monster_IsClear;
 	bool isClear;
 	bool isRun;
@@ -94,6 +98,8 @@ struct SaveMonsterData
 	void serialize(Archive& ar, const unsigned int version)
 	{
 		ar& monster_Hp;
+		ar& _monsterGoldReward;
+		ar& _monsterPower;
 		ar& monster_IsClear;
 		ar& isClear;
 		ar& isRun;

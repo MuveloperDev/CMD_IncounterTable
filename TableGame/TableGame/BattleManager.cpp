@@ -14,6 +14,7 @@ BattleManager::~BattleManager()
 
 void BattleManager::Awake()
 {
+	Initialize();
 }
 
 void BattleManager::Start()
@@ -192,7 +193,20 @@ void BattleManager::SetBattlePage(BattlePage InBattlePage)
 
 void BattleManager::PrintMonsterShape()
 {
-	Utility::GetInstance().PrintShape(43, 2, _targetMonster->GetMonsterShpae());
+	MonsterType type = _targetMonster->GetMonsterType();
+	switch (type)
+	{
+	case MonsterType::Skeleton:
+	case MonsterType::Devil:
+	case MonsterType::BigFoot:
+	case MonsterType::Cyclops:
+	case MonsterType::ParasiticBat:
+		Utility::GetInstance().PrintShape(43, 2, _targetMonster->GetMonsterShpae());
+		break;
+	case MonsterType::Dragon:
+		Utility::GetInstance().PrintShape(21, 2, _targetMonster->GetMonsterShpae());
+		break;
+	}
 
 }
 
@@ -362,12 +376,29 @@ void BattleManager::PlayerChoiceProcess()
 		break;
 	case PlayerChoiceListBattleMode::Run:
 	{
-		std::uniform_int_distribution<int> distribution(1,3);
-		__int32 random_number = distribution(generator);
-		if (0 == random_number % 3)
+		MonsterType type = _targetMonster->GetMonsterType();
+		switch (type)
 		{
-			_targetTile->SetIsRun(true);
-			_isRun = true;
+		case MonsterType::Skeleton:
+		case MonsterType::Devil:
+		case MonsterType::BigFoot:
+		case MonsterType::Cyclops:
+		case MonsterType::ParasiticBat:
+		{
+			std::uniform_int_distribution<int> distribution(1, 3);
+			__int32 random_number = distribution(generator);
+			if (0 == random_number % 3)
+			{
+				_targetTile->SetIsRun(true);
+				_isRun = true;
+			}
+			break;
+		}
+		case MonsterType::Dragon: 
+		{
+			_isRun = false;
+			break;
+		}
 		}
 		break;
 	}
@@ -380,6 +411,7 @@ void BattleManager::Initialize()
 	_targetTile = nullptr;
 	_CURRENT_CHOICE_LIST = PlayerChoiceListBattleMode::Attack;
 	_PLAYER_INPUT = PlayerInputSelectMode::None;
+	_CURRENT_BATTLEPAGE = BattlePage::None;
 	_isRun = false;
 	SetConsoleTextAttribute(_hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 }

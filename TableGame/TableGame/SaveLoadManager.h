@@ -14,6 +14,7 @@ class SaveLoadManager
 public:
 	SaveLoadManager();
 	~SaveLoadManager();
+	void Awake();
 	void Update();
 	void Render();
 public:
@@ -30,6 +31,7 @@ private:
 	std::map<int, SaveFileData> _saveLoadList;
 	std::vector<SaveLoadPopup> _buttonList;
 private:
+	void Initialize();
 	void ChoiceProcess();
 	void PopupChoiceProcess();
 	void SetPopupButtonList();

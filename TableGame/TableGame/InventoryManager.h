@@ -3,8 +3,9 @@
 #include "ItemBase.h"
 #include "ItemHpPotion.h"
 #include "ItemPowerUp.h"
+#include "InputBase.h"
 
-class InventoryManager
+class InventoryManager : public InputBase
 {
 public:
 	InventoryManager();
@@ -19,6 +20,7 @@ public:
 	void SetItemList(std::map<ItemType, InventoryItem> InMap);
 private:
 	__int32 _CURRENT_CHOICE_ITEM;
+	__int32 _CURRENT_CHOICE_ITEM_SELECT_CNT;
 	HANDLE _hConsole;
 	PlayerInputSelectMode _PLAYER_INPUT;
 	std::map<ItemType, ItemBase*> _itemList;
@@ -30,5 +32,7 @@ private:
 	void Initialize();
 	void PrintItemList();
 	void ChoiceProcess();
+	void HorizontalInputProcess();
+	void RenderDescription();
 };
 

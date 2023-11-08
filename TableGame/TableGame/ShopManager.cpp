@@ -219,7 +219,7 @@ MapSector ShopManager::SetTargetSector(const __int32 x, const __int32 y)
 	return MapSector::None;
 }
 
-ShopManager::TileCoordinate ShopManager::RandomCoordToSector(MapSector InSector)
+TileCoordinate ShopManager::RandomCoordToSector(MapSector InSector)
 {
 	std::uniform_int_distribution<int> distribution(0, _possibleCoord[InSector].size()-1);
 	__int32 random_number = distribution(generator);

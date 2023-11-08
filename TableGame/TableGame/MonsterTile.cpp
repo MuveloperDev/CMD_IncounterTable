@@ -3,6 +3,7 @@
 #include "MonsterBigFoot.h"
 #include "MonsterCyclops.h"
 #include "MonsterParasiticBat.h"
+#include "MonsterDragon.h"
 
 MonsterTile::MonsterTile(__int32 InPosX, __int32 InPosY, MonsterType InMonsterType):
 	_posX(InPosX), _posY(InPosY), _monsterType(InMonsterType), _monster(nullptr), _isClear(false)
@@ -34,6 +35,9 @@ void MonsterTile::Initialize()
 		break;
 	case MonsterType::Cyclops:
 		_monster = static_cast<MonsterBase*>(new MonsterCyclops(MonsterType::Cyclops));
+		break;
+	case MonsterType::Dragon:
+		_monster = static_cast<MonsterBase*>(new MonsterDragon(MonsterType::Dragon));
 		break;
 	case MonsterType::ParasiticBat:
 		_monster = static_cast<MonsterBase*>(new MonsterParasiticBat(MonsterType::ParasiticBat));

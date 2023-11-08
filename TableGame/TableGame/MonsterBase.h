@@ -25,6 +25,8 @@ public:
 	 void SetHp(__int32 InDamage);
 	 void SetReplaceHp(__int32 InHp);
 	 void SetClear(bool InClear);
+	 void SetAttackDamage(__int32 InPower);
+	 void SetGoldReward(__int32 InGoldReward);
 	 void SetMonsterAction(MonsterAction InMonsterAction);
 	 void Attack(Player& InPlayer);
 protected:

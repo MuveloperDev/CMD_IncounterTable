@@ -30,6 +30,7 @@ public:
 
 	void SetHp(__int32 InDamage);
 	void SetAttackDamage(__int32 InAddDamage);
+	void SetMaxHP(__int32 InAddHP);
 	void SetGold(__int32 InAddGold);
 	void SetPosX(__int32 InX);
 	void SetPosY(__int32 InY);

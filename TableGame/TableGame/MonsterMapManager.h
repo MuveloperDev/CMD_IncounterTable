@@ -48,6 +48,7 @@ private:
 	void InitializeRandomMapPos();
 	bool hasDuplicatedSectorPos(std::vector<TileCoordinate>& vec, TileCoordinate value);
 	void ReverseSectorPos();
+	void SetMaxGeneratingNum(__int32 InDifficult);
 	MonsterType GenerateRandomMonsterType();
 	std::default_random_engine generator;
 };

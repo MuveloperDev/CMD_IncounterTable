@@ -93,6 +93,7 @@ void Intro::Start()
 		asyncMusic.get();  // 이전에 생성한 비동기 작업이 완료될 때까지 대기
 	}
 	asyncMusic = std::async(std::launch::async, &Intro::Music, this);
+	updateESC = std::async(std::launch::async, &Intro::UpdateESC, this);
 	PrintScript();
 }
 
@@ -102,6 +103,9 @@ void Intro::PrintScript()
 
 	for (__int32 i = 0; i < lines.size(); i++)
 	{
+		if (Scene::Intro != _CURRENT_SCENE)
+			break;
+
 		Utility::GetInstance().ChangeTextColor(TextColors::Intensity, true);
 		if (i < lines.size() / 2)
 		{
@@ -118,7 +122,14 @@ void Intro::PrintScript()
 			std::cout << lines[idx];
 		}
 		Utility::GetInstance().PrintFrame();
+		Utility::GetInstance().SetCursorPosition(3, 27);
+		std::cout << "[ ESC : SKIP ] ";
+		
+		if (Scene::Intro != _CURRENT_SCENE)
+			break;
 		Sleep(1000);
+		if (Scene::Intro != _CURRENT_SCENE)
+			break;
 		Utility::GetInstance().ClearCmd();
 	}
 	Sleep(1000);
@@ -139,4 +150,29 @@ void Intro::Music()
 		}
 	}
 
+}
+
+void Intro::UpdateESC()
+{
+	while (true)
+	{
+		SHORT escState = GetAsyncKeyState(VK_ESCAPE);
+		bool isESC = (escState & 0x8000) != 0;
+		if (true == isESC)
+		{
+			if (_isKeyDown == false)
+			{
+				Utility::GetInstance().SetCursorPosition(100, 27);
+				std::cout << "LOADING..... ";
+				_CURRENT_SCENE = Scene::Game;
+				GameManager::GetInstance().ChangeScene(Scene::Game);
+				break;
+			}
+			_isKeyDown = true;
+		}
+		else
+		{
+			_isKeyDown = false;
+		}
+	}
 }

@@ -17,6 +17,7 @@ public:
 		None = -1,
 		Start = 0,
 		Restart,
+		Difficult,
 		Exit,
 	};
 	SceneBase(std::string InAsciiTitle);

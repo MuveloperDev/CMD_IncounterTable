@@ -1,6 +1,8 @@
 #include "InventoryManager.h"
+#include "ItemMaxHpPotion.h"
 
 InventoryManager::InventoryManager() : 
+	InputBase(),
 	_PLAYER_INPUT(PlayerInputSelectMode::None), _CURRENT_CHOICE_ITEM(0),
 	_pointShape("¢¹"), _CURRENT_TEXT_COLOR(TextColors::None),
 	_hConsole(GetStdHandle(STD_OUTPUT_HANDLE)),
@@ -75,6 +77,8 @@ void InventoryManager::Update()
 			break;
 		}
 		_CURRENT_CHOICE_ITEM--;
+		_CURRENT_CHOICE_ITEM_SELECT_CNT = 0;
+		Utility::GetInstance().ClearCmd();
 		break;
 	case PlayerInputSelectMode::Down:
 		if (static_cast<int>(ItemType::Max) - 1 == _CURRENT_CHOICE_ITEM)
@@ -83,6 +87,8 @@ void InventoryManager::Update()
 			break;
 		}
 		_CURRENT_CHOICE_ITEM++;
+		_CURRENT_CHOICE_ITEM_SELECT_CNT = 0;
+		Utility::GetInstance().ClearCmd();
 		break;
 	case PlayerInputSelectMode::Enter:
 		ChoiceProcess();
@@ -90,6 +96,9 @@ void InventoryManager::Update()
 	default:
 		break;
 	}
+
+	UIHorizontalInputUpdate();
+	HorizontalInputProcess();
 }
 
 void InventoryManager::Render()
@@ -102,6 +111,7 @@ void InventoryManager::Render()
 	Utility::GetInstance().SetCursorPosition(22, 27);
 	std::cout << "  USE - ENTER" << std::endl;
 	Utility::GetInstance().PrintVerticalLine(20, 1, 27);
+	RenderDescription();
 	Utility::GetInstance().PrintFrame();
 }
 
@@ -123,6 +133,9 @@ void InventoryManager::SimpleUI()
 			break;
 		case ItemType::PowerUp:
 			std::cout << "  Power Up - [ " << base->GetCount() << " ]" << std::endl;
+			break;
+		case ItemType::MaxHPPotion:
+			std::cout << "  Max HP Potion - [ " << base->GetCount() << " ]" << std::endl;
 			break;
 		case ItemType::Exit:
 		case ItemType::Max:
@@ -192,6 +205,9 @@ void InventoryManager::Initialize()
 		case ItemType::PowerUp:
 			_itemList.insert({ ItemType::PowerUp,   static_cast<ItemBase*>(new ItemPowerUp()) });
 			break;
+		case ItemType::MaxHPPotion:
+			_itemList.insert({ ItemType::MaxHPPotion,   static_cast<ItemBase*>(new ItemMaxHpPotion()) });
+			break;
 		case ItemType::Max:
 			break;
 		default:
@@ -203,11 +219,12 @@ void InventoryManager::Initialize()
 
 void InventoryManager::PrintItemList()
 {
-	Utility::GetInstance().SetCursorPosition(60,1);
+	Utility::GetInstance().SetCursorPosition(30,2);
 	std::cout << "[ I N V E N T O R Y ]" << std::endl;
+	__int32 adjust = 0;
 	for (__int32 i = 0; i < static_cast<int>(ItemType::Max); i++)
 	{
-		Utility::GetInstance().SetCursorPosition(60, 2+i);
+		Utility::GetInstance().SetCursorPosition(25, 4+i+ adjust);
 		ItemType key = static_cast<ItemType>(i);
 		ItemBase* base = _itemList[key];
 		switch (key)
@@ -217,24 +234,36 @@ void InventoryManager::PrintItemList()
 		case ItemType::HPPotion:
 			if (key != static_cast<ItemType>(_CURRENT_CHOICE_ITEM))
 			{
-				std::cout <<"  HP Potion - [ " << base->GetCount() << " ]" << std::endl;
+				std::cout <<"  HP Potion - [ " << base->GetCount() << " ] [ - 0 + ]" << std::endl;
 				break;
 			}
 			if(PlayerInputSelectMode::Enter != _PLAYER_INPUT)
 				Utility::GetInstance().ChangeTextColor(TextColors::Green, false);
-			std::cout << _pointShape <<"HP Potion - [ " << base->GetCount() << " ]" << std::endl;
+			std::cout << _pointShape <<"HP Potion - [ " << base->GetCount() << " ] " << "[ - " << _CURRENT_CHOICE_ITEM_SELECT_CNT << " + ]" << std::endl;
 			if (PlayerInputSelectMode::Enter != _PLAYER_INPUT)
 				Utility::GetInstance().ResetTextColor();
 			break;
 		case ItemType::PowerUp:
 			if (key != static_cast<ItemType>(_CURRENT_CHOICE_ITEM))
 			{
-				std::cout << "  Power Up - [ " << base->GetCount() << " ]" << std::endl;
+				std::cout << "  Power Up - [ " << base->GetCount() << " ] [ - 0 + ]" << std::endl;
 				break;
 			}
 			if (PlayerInputSelectMode::Enter != _PLAYER_INPUT)
 				Utility::GetInstance().ChangeTextColor(TextColors::Green, false);
-			std::cout << _pointShape << "Power Up - [ " << base->GetCount() << " ]" << std::endl;
+			std::cout << _pointShape << "Power Up - [ " << base->GetCount() << " ] " << "[ - " << _CURRENT_CHOICE_ITEM_SELECT_CNT << " + ]" << std::endl;
+			if (PlayerInputSelectMode::Enter != _PLAYER_INPUT)
+				Utility::GetInstance().ResetTextColor();
+			break;
+		case ItemType::MaxHPPotion:
+			if (key != static_cast<ItemType>(_CURRENT_CHOICE_ITEM))
+			{
+				std::cout << "  Max HP Potion - [ " << base->GetCount() << " ] [ - 0 + ]" << std::endl;
+				break;
+			}
+			if (PlayerInputSelectMode::Enter != _PLAYER_INPUT)
+				Utility::GetInstance().ChangeTextColor(TextColors::Green, false);
+			std::cout << _pointShape << "Max HP Potion - [ " << base->GetCount() << " ] " << "[ - " << _CURRENT_CHOICE_ITEM_SELECT_CNT << " + ]" << std::endl;
 			if (PlayerInputSelectMode::Enter != _PLAYER_INPUT)
 				Utility::GetInstance().ResetTextColor();
 			break;
@@ -256,6 +285,7 @@ void InventoryManager::PrintItemList()
 		default:
 			break;
 		}
+		adjust++;
 	}
 }
 
@@ -271,7 +301,11 @@ void InventoryManager::ChoiceProcess()
 		ItemBase* base = _itemList[type];
 		SetConsoleTextAttribute(_hConsole, FOREGROUND_GREEN);
 		_CURRENT_TEXT_COLOR = TextColors::Green;
-		base->Use();
+		if (base->GetCount() <= _CURRENT_CHOICE_ITEM_SELECT_CNT)
+		{
+			_CURRENT_CHOICE_ITEM_SELECT_CNT = base->GetCount();
+		}
+		base->Use(_CURRENT_CHOICE_ITEM_SELECT_CNT);
 		break;
 	}
 	case ItemType::PowerUp:
@@ -280,7 +314,24 @@ void InventoryManager::ChoiceProcess()
 
 		SetConsoleTextAttribute(_hConsole, FOREGROUND_BLUE);
 		_CURRENT_TEXT_COLOR = TextColors::Blue;
-		base->Use();
+		if (base->GetCount() <= _CURRENT_CHOICE_ITEM_SELECT_CNT)
+		{
+			_CURRENT_CHOICE_ITEM_SELECT_CNT = base->GetCount();
+		}
+		base->Use(_CURRENT_CHOICE_ITEM_SELECT_CNT);
+		break;
+	}
+	case ItemType::MaxHPPotion:
+	{
+		ItemBase* base = _itemList[type];
+
+		SetConsoleTextAttribute(_hConsole, FOREGROUND_GREEN);
+		_CURRENT_TEXT_COLOR = TextColors::Green;
+		if (base->GetCount() <= _CURRENT_CHOICE_ITEM_SELECT_CNT)
+		{
+			_CURRENT_CHOICE_ITEM_SELECT_CNT = base->GetCount();
+		}
+		base->Use(_CURRENT_CHOICE_ITEM_SELECT_CNT);
 		break;
 	}
 	case ItemType::Exit:
@@ -293,5 +344,68 @@ void InventoryManager::ChoiceProcess()
 		break;
 	default:
 		break;
+	}
+	Utility::GetInstance().ClearCmd();
+}
+
+void InventoryManager::HorizontalInputProcess()
+{
+	UIHorizontalInput input = GetCurrentHInput();
+	switch (input)
+	{
+	case UIHorizontalInput::None:
+		break;
+	case UIHorizontalInput::Left:
+		if (0 >= _CURRENT_CHOICE_ITEM_SELECT_CNT)
+		{
+			_CURRENT_CHOICE_ITEM_SELECT_CNT = 0;
+		}
+		else _CURRENT_CHOICE_ITEM_SELECT_CNT--;
+		break;
+	case UIHorizontalInput::Right:
+	{
+		ItemType type = static_cast<ItemType>(_CURRENT_CHOICE_ITEM);
+		switch (type)
+		{
+		case ItemType::HPPotion:
+		case ItemType::PowerUp:
+		case ItemType::MaxHPPotion:
+		{
+			ItemBase* base = _itemList[type];
+			if (base->GetCount() <= _CURRENT_CHOICE_ITEM_SELECT_CNT)
+			{
+				_CURRENT_CHOICE_ITEM_SELECT_CNT = base->GetCount();
+			}
+			else _CURRENT_CHOICE_ITEM_SELECT_CNT++;
+			break;
+		}
+		default:
+			break;
+
+		}
+		break;
+	}
+	default:
+		break;
+	}
+}
+
+void InventoryManager::RenderDescription()
+{
+	ItemType type = static_cast<ItemType>(_CURRENT_CHOICE_ITEM);
+	switch (type)
+	{
+	case ItemType::HPPotion:
+	case ItemType::PowerUp:
+	case ItemType::MaxHPPotion:
+	{
+		ItemBase* base = _itemList[type];
+		Utility::GetInstance().SetCursorPosition(80,5);
+		std::cout << base->GetDescription();
+		break;
+	}
+	default:
+		break;
+
 	}
 }

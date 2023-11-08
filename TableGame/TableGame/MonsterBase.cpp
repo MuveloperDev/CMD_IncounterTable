@@ -79,6 +79,16 @@ void MonsterBase::SetClear(bool InClear)
 	_isClear = InClear;
 }
 
+void MonsterBase::SetAttackDamage(__int32 InPower)
+{
+	_attackDamge = InPower;
+}
+
+void MonsterBase::SetGoldReward(__int32 InGoldReward)
+{
+	_goldReward = InGoldReward;
+}
+
 void MonsterBase::SetMonsterAction(MonsterAction InMonsterAction)
 {
 	_CURRENT_MONSTER_ACTION = InMonsterAction;

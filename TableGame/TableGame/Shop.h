@@ -25,17 +25,20 @@ private:
 	__int32 _posX;
 	__int32 _posY;
 	__int32 _CURRENT_CHOICE_ITEM;
+	__int32 _CURRENT_CHOICE_ITEM_BUT_COUNT;
 	bool _isLackOfMoney;
 	bool _isBuy;
 	bool _isExit;
+	bool _isKeyDown;
 	PlayerInputSelectMode _PLAYER_INPUT;
 	std::map<ItemType, ItemBase*> _itemList;
 	std::string _pointShape;
 	std::string _shopMasterShape;
 	std::string _tableShape;
-	
+
 private:
 	void PrintComment(bool& InFlag, std::string InComment);
 	void PrintLine(__int32 InX);
+	void UpdateBuyCount();
 };
 

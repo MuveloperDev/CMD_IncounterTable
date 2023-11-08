@@ -20,6 +20,7 @@ public:
 	void PrintScript();
 	void Music();
 private:
+	bool _isKeyDown;
 	Scene _CURRENT_SCENE;
 	std::vector<std::string> lines;
 	std::string _script;
@@ -27,5 +28,9 @@ private:
 	std::string _backgroundPaint2;
 	std::vector<int> freqs;
 	std::future<void> asyncMusic;
+	std::future<void> updateESC;
+
+private:
+	void UpdateESC();
 };
 

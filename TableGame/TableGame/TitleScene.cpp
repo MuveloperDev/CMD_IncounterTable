@@ -6,7 +6,8 @@
 
 
 TitleScene::TitleScene() : 
-	_startBtnText("START"), _exitBtnText("EXIT"),
+	_startBtnText("START"), _exitBtnText("EXIT"), _difficultBtnText("DIFFICULT"),
+	_CURRENT_MODE(TitleMode::Title), _difficultSelectPage(new DifficultSelectPage(this)),
 	SceneBase(R"(
 _________ _        _______  _______           _       _________ _______  _______   
 \__   __/( (    /|(  ____ \(  ___  )|\     /|( (    /|\__   __/(  ____ \(  ____ )  
@@ -40,6 +41,7 @@ ___) (___| )  \  || (____/\| (___) || (___) || )  \  |   | |   | (____/\| ) \ \_
 
 TitleScene::~TitleScene()
 {
+	delete _difficultSelectPage;
 }
 
 void TitleScene::Run()
@@ -50,13 +52,34 @@ void TitleScene::Run()
 	}
 	asyncMusic = std::async(std::launch::async, &TitleScene::Music, this);
 
-	while (true)
+	while (Scene::Title == _CURRENT_SCENE)
 	{
-		Update();
-		if (true == SelectProcess())
+		switch (_CURRENT_MODE)
+		{
+		case TitleMode::Title:
+			Update();
+			if (true == SelectProcess())
+				break;
+			Render();
 			break;
-		Render();
+		case TitleMode::Difficult:
+			_difficultSelectPage->Update();
+			_difficultSelectPage->Render();
+			break;
+		}
+
 	}
+}
+
+void TitleScene::SetMode(TitleMode InMode)
+{
+	_CURRENT_MODE = InMode;
+	Utility::GetInstance().ClearCmd();
+}
+
+TitleMode TitleScene::GetMode()
+{
+	return _CURRENT_MODE;
 }
 
 void TitleScene::Initialize()
@@ -64,6 +87,7 @@ void TitleScene::Initialize()
 	SceneBase::Initialize();
 	
 	_buttons.push_back(Buttons::Start);
+	_buttons.push_back(Buttons::Difficult);
 	_buttons.push_back(Buttons::Exit);
 }
 
@@ -86,12 +110,26 @@ void TitleScene::Render()
 			});
 
 		Utility::GetInstance().SetCursorPosition(55, 26);
+		std::cout << "    " << _difficultBtnText << std::endl;
+		Utility::GetInstance().SetCursorPosition(55, 27);
+		std::cout << "    " << _exitBtnText << std::endl;
+		break;
+	case Buttons::Difficult:
+		Utility::GetInstance().SetCursorPosition(55, 25);
+			std::cout << "    " << _startBtnText << std::endl;
+		Utility::GetInstance().SetCursorPosition(55, 26);
+		Utility::GetInstance().ChangeTextColor(TextColors::Green, false, [this]() {
+			std::cout << _pointer << " " << _difficultBtnText << std::endl;
+			});
+		Utility::GetInstance().SetCursorPosition(55, 27);
 		std::cout << "    " << _exitBtnText << std::endl;
 		break;
 	case Buttons::Exit:
 		Utility::GetInstance().SetCursorPosition(55, 25);
 		std::cout << "    "  << _startBtnText << std::endl;
 		Utility::GetInstance().SetCursorPosition(55, 26);
+		std::cout << "    "  << _difficultBtnText << std::endl;
+		Utility::GetInstance().SetCursorPosition(55, 27);
 		Utility::GetInstance().ChangeTextColor(TextColors::Green, false, [this]() {
 			std::cout << _pointer << " " << _exitBtnText << std::endl;
 			});
@@ -119,6 +157,10 @@ bool TitleScene::SelectProcess()
 
 			GameManager::GetInstance().ChangeScene(Scene::Intro);
 			_CURRENT_SCENE = GameManager::GetInstance().GetCurrentScene();
+			break;
+		case Buttons::Difficult:
+			SetMode(TitleMode::Difficult);
+			_CURRENTINPUT = PlayerInputSelectMode::None;
 			break;
 		case Buttons::Exit:
 			Utility::GetInstance().ClearCmd();

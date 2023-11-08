@@ -42,6 +42,8 @@ void OptionManager::Render()
 
 	Utility::GetInstance().PrintShape(30, 1, _titleShape);
 	PrintOptionList();
+	Utility::GetInstance().SetCursorPosition(4, 27);
+	std::cout << "ESC - CLOSE";
 	Utility::GetInstance().PrintFrame();
 
 }
@@ -73,6 +75,9 @@ void OptionManager::UpdateCursor()
 		_CURRENT_TARGET_OPTION++;
 		break;
 	}
+	case PlayerInputSelectMode::ESC:
+		GameManager::GetInstance().ChangeGameMode(GameMode::TableMode, nullptr);
+		break;
 	case PlayerInputSelectMode::Enter:
 		ChoiceProcess();
 		break;
@@ -90,8 +95,11 @@ void OptionManager::ChoiceProcess()
 	case Options::SaveLoad:
 		GameManager::GetInstance().ChangeGameMode(GameMode::SaveLoadMode, nullptr);
 		break;
+	case Options::Inventory:
+		GameManager::GetInstance().ChangeGameMode(GameMode::InventoryMode, nullptr);
+		break;
 	case Options::Exit:
-		GameManager::GetInstance().ChangeGameMode(GameMode::TableMode, nullptr);
+		GameManager::GetInstance().ChangeScene(Scene::Title);
 		break;
 	}
 }
@@ -120,6 +128,14 @@ void OptionManager::PrintOptionList()
 				break;
 			}
 			std::cout << "   [ SAVE & LOAD ]" << std::endl;
+			break;
+		case Options::Inventory:
+			if (i == _CURRENT_TARGET_OPTION)
+			{
+				std::cout << _pointShape << " [ INVENTORY ]" << std::endl;
+				break;
+			}
+			std::cout << "   [ INVENTORY ]" << std::endl;
 			break;
 		case Options::Exit:
 			if (i == _CURRENT_TARGET_OPTION)

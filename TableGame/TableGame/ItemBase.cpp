@@ -9,7 +9,7 @@ ItemBase::~ItemBase()
 {
 }
 
-void ItemBase::Use()
+void ItemBase::Use(__int32 InCnt)
 {
 }
 
@@ -33,6 +33,11 @@ __int32 ItemBase::GetPrice()
 	return _price;
 }
 
+std::string& ItemBase::GetDescription()
+{
+	return _description;
+}
+
 void ItemBase::SetCount(__int32 InAdd)
 {
 	_count += InAdd;
@@ -41,4 +46,9 @@ void ItemBase::SetCount(__int32 InAdd)
 void ItemBase::ReplaceCount(__int32 InAdd)
 {
 	_count = InAdd;
+}
+
+void ItemBase::SetDescription(std::string& InDescription)
+{
+	_description = InDescription;
 }
